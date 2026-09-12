@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { InfoBanner } from '@/components/InfoBanner';
 import { OpsItemCard } from '@/components/OpsItemCard';
 import { useToast } from '@/components/ToastProvider';
 import { DEFAULT_APPROVAL_WARN_DAYS } from '@/lib/config';
@@ -68,6 +69,13 @@ export default function OpsHubPage() {
           days
         </label>
       </div>
+
+      <InfoBanner
+        title="New: Performance Import."
+        body="Paste or upload a CSV, TSV (straight from Excel/Sheets), or JSON export for your sprint — from Azure Boards, Jira, Trello, or any spreadsheet with the right columns — to get an instant Velocity, Quality, and Workload snapshot. No live connection to any tool required."
+        linkHref="/performance-import"
+        linkLabel="Try Performance Import →"
+      />
 
       {error && (
         <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">

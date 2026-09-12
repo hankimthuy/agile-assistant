@@ -8,6 +8,7 @@ const LINKS = [
   { href: '/report', label: 'Report' },
   { href: '/process-health', label: 'Process Health' },
   { href: '/doc-linker', label: 'Doc Linker' },
+  { href: '/performance-import', label: 'Performance Import' },
 ];
 
 export function Nav() {

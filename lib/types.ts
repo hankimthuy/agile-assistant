@@ -115,3 +115,84 @@ export interface DraftResult {
 export interface ApiError {
   error: string;
 }
+
+// --- Performance Import (Pillar 5) ---
+// Normalized shape for one row of a pasted/uploaded work-item export —
+// CSV, TSV (e.g. pasted straight out of Excel), or JSON — from *any*
+// source (Azure Boards, Jira, Trello, a plain spreadsheet, ...), not just
+// one specific tool. "raw*" fields keep the original source value for
+// display, since vocabulary for work-item type/state varies per tool and
+// shouldn't be silently discarded.
+
+export interface ImportedWorkItem {
+  id: string;
+  title: string;
+  workItemType: TicketType | 'other';
+  rawWorkItemType: string;
+  state: TicketStatus | 'other';
+  rawState: string;
+  storyPoints: number;
+  assignedTo: string;
+  iterationPath: string;
+  severity?: string;
+  createdDate?: string;
+  changedDate?: string;
+  closedDate?: string;
+}
+
+export interface PerformanceImportResult {
+  sprintLabel: string;
+  workItems: ImportedWorkItem[];
+  warnings: string[];
+}
+
+export interface VelocityReport {
+  totalItems: number;
+  doneItems: number;
+  completionRate: number; // 0..1
+  velocity: number; // sum of storyPoints on done items
+  byType: Record<TicketType | 'other', { total: number; done: number }>;
+  headline: string;
+}
+
+export interface SeverityCount {
+  severity: string;
+  count: number;
+}
+
+export interface QualityReport {
+  totalBugs: number;
+  openBugs: number;
+  closedBugs: number;
+  bugRatio: number; // bugs / totalItems, 0..1
+  hasSeverityData: boolean;
+  bySeverity: SeverityCount[];
+  headline: string;
+}
+
+export interface AssigneeWorkload {
+  assignee: string;
+  total: number;
+  done: number;
+}
+
+export interface StaleItem {
+  id: string;
+  title: string;
+  daysSinceUpdate: number;
+}
+
+export interface WorkloadReport {
+  byAssignee: AssigneeWorkload[];
+  staleDays: number;
+  staleItems: StaleItem[];
+  headline: string;
+}
+
+export interface PerformanceImportReport {
+  sprintLabel: string;
+  velocity: VelocityReport;
+  quality: QualityReport;
+  workload: WorkloadReport;
+  warnings: string[];
+}

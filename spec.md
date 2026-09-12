@@ -44,16 +44,17 @@ Turn "reporting progress & keeping documentation tidy" from a Scrum Master's man
 
 ---
 
-## 3. Four Product Pillars
+## 3. Five Product Pillars
 
-The first three pillars operate at the **sprint/team level**; the fourth operates at the **individual Scrum Master level** — where they actually become the bottleneck. This fourth pillar should also be the screen that opens first ("one single place") rather than the report.
+The first three pillars operate at the **sprint/team level**; the fourth operates at the **individual Scrum Master level** — where they actually become the bottleneck. This fourth pillar should also be the screen that opens first ("one single place") rather than the report. The fifth pillar is deliberately **on-demand, not automatic** — it runs on data the Scrum Master already exported from a tool this POC doesn't integrate with live.
 
 1. **Ops Hub** *(home screen)* — gathers everything the Scrum Master needs to act on (their own tasks, delegatable work, messages/emails awaiting reply, pending approvals) into one single list, with delegation suggestions and draft-response generation.
 2. **Auto Report** — at the end of every sprint, the system automatically compiles tickets + documentation into a business-narrative report (not just dry numbers), sent to Teams for PM/PO.
 3. **Doc Linker** — automatically finds and attaches relevant Confluence documentation to each ticket/epic; flags "missing documentation" or "orphaned documentation" (no longer referenced by any ticket).
 4. **Process Health** — a table showing tickets that are missing acceptance criteria, missing documentation, or have been stale for too long.
+5. **Performance Import** — a Scrum Master pastes or uploads a sprint export — CSV, TSV (cells copied straight out of Excel/Google Sheets), or JSON — from *any* tool (Azure Boards, Jira, Trello, a hand-built spreadsheet, ...) as long as it has the right columns, and the app instantly generates 3 fixed performance templates (Velocity & Completion, Quality & Bug Health, Workload & Aging) — no live connection to any tool, no data stored between requests. The Workload & Aging template reuses the same "stale after N days" rule as Process Health, applied to imported data instead of Jira data.
 
-> Process Health and Doc Linker detect bottlenecks at the **ticket** level; Ops Hub detects bottlenecks at the **human** level (the Scrum Master themself) — the two layers complement each other without overlapping.
+> Process Health and Doc Linker detect bottlenecks at the **ticket** level; Ops Hub detects bottlenecks at the **human** level (the Scrum Master themself); Performance Import answers a different question from the same **ticket** level — "how did the sprint actually perform?" — for teams whose board of record isn't Jira, or who just have a spreadsheet export handy. The four automatic pillars complement each other without overlapping; the fifth is opt-in per use.
 
 ---
 
@@ -65,11 +66,13 @@ The first three pillars operate at the **sprint/team level**; the fourth operate
 - Generate sprint reports (narrative + metrics) via LLM.
 - A Process Health table driven by fixed rules (no ML needed).
 - Ops Hub: classification + delegation suggestions + drafting emails/reminders (LLM-generated — drafts only, never auto-sent).
-- A web dashboard displaying Ops Hub, the report, process health, and doc linker.
+- Performance Import: paste/upload a CSV, TSV, or JSON sprint export from *any* tool (Azure Boards, Jira, Trello, a plain spreadsheet, ...) with recognizable columns, and generate 3 fixed-rule performance templates (Velocity & Completion, Quality & Bug Health, Workload & Aging) — no live connection to any of those tools, the app never calls an external API for this (see Epic 6).
+- A web dashboard displaying Ops Hub, the report, process health, doc linker, and Performance Import.
 
 ### Out of scope this week
 - Real enterprise SSO / authentication.
-- Azure DevOps and email integrations, and writing back into Jira (real assignment) — mocked in the demo only, called out as "planned" on the roadmap.
+- **Live/API** sync with Azure DevOps, Jira Cloud, or email integrations, and writing back into Jira (real assignment) — mocked in the demo only, called out as "planned" on the roadmap. (Manual CSV/TSV/JSON import of a sprint export from any of those tools, to generate the 3 performance templates, is now in scope — see Epic 6 — the distinction is live sync vs. a one-shot paste of data the user already exported.)
+- Multi-sprint trend/burndown-over-time from an imported export — a single export is a one-shot snapshot with no iteration history, so only single-sprint metrics are computed.
 - Automatically sending emails/messages on the user's behalf (the POC only drafts; the user always sends it themselves — safer and keeps the product in an assistant role).
 - Multiple projects / multiple departments at once.
 - Advanced predictive risk modeling (ML).
@@ -79,7 +82,7 @@ The first three pillars operate at the **sprint/team level**; the fourth operate
 | Level | Epic | Why |
 |---|---|---|
 | Must-have | Epic 1 (Auto Report), Epic 5 (Ops Hub) | The two core pitch stories: "automatic reporting" + "one place where I'm no longer the bottleneck" |
-| Should-have | Epic 3 (Process Health) | Fixed rules, fast to code, no complex LLM needed |
+| Should-have | Epic 3 (Process Health), Epic 6 (Performance Import) | Fixed rules, fast to code, no complex LLM needed |
 | Cut first if time runs out | Epic 2 (Doc Linker) | Can be replaced with 1–2 static illustrative slides if Day 5 runs behind |
 
 ---
@@ -203,6 +206,44 @@ _Persona: Scrum Master_
 
 ---
 
+### EPIC 6 — Performance Import
+
+*(Pillar 5, Section 3. Unlike Epics 1–5, this one runs on data the Scrum Master pastes in on demand — the app never calls out to Azure Boards, Jira, or any other tool's API. Deliberately tool-agnostic: it doesn't matter which tool the export came from, only that it has recognizable columns. A single export is a one-shot snapshot with no iteration history, so these templates are single-sprint only; no burndown-over-time or scope-change tracking.)*
+
+**STORY 6.1 — Ingest a sprint export from any tool**
+_Persona: Scrum Master_
+- As a Scrum Master, I want to paste or upload the CSV/TSV/JSON export I already have — from Azure Boards, Jira, Trello, or a plain spreadsheet — so I don't have to re-enter anything by hand or wait for a real integration with whichever tool my team happens to use.
+- Acceptance criteria:
+  - [ ] Accepts pasted text or an uploaded `.csv`/`.tsv`/`.txt`/`.json` file.
+  - [ ] Auto-detects comma- vs. tab-delimited text, since cells copy-pasted straight out of Excel/Google Sheets are tab-separated, not comma-separated.
+  - [ ] Tolerates column-name variants from several tools/export styles at once — e.g. Azure's `Work Item Type`/`Assigned To`/`Iteration Path`, Jira's `Issue Type`/`Assignee`/`Sprint`, or a plain spreadsheet's `Type`/`Owner` — plus Azure's JSON field-reference names (`System.WorkItemType`, `System.State`, …).
+  - [ ] Malformed/empty input shows a clear error, never crashes; a merely incomplete export (e.g. no Story Points column) still produces a report, with the gap surfaced as a data-quality note rather than a hard failure.
+  - [ ] A "Load sample data" control demos the feature with zero setup.
+
+**STORY 6.2 — Velocity & Completion template**
+_Persona: Scrum Master_
+- As a Scrum Master, I want velocity, completion rate, and a by-type breakdown computed from the imported export, so I can report on work tracked in any tool the same way I already do for Jira.
+- Acceptance criteria:
+  - [ ] Velocity = sum of Story Points on items in a "done"-equivalent state (Closed/Done/Resolved).
+  - [ ] Completion rate = done items ÷ total items.
+  - [ ] A breakdown by work item type (story/task/bug/other) shows total vs. done per type.
+
+**STORY 6.3 — Quality & Bug Health template**
+_Persona: Scrum Master_
+- As a Scrum Master, I want open/closed bug counts and a severity breakdown from the imported export, so quality trends are visible without pulling a separate report from whichever tool the team uses.
+- Acceptance criteria:
+  - [ ] Total, open, and closed bug counts, plus bug ratio (bugs ÷ total items).
+  - [ ] A severity breakdown table when the export has a Severity/Priority column; otherwise a plain note that severity data wasn't found (never a blank/broken table).
+
+**STORY 6.4 — Workload & Aging template**
+_Persona: Scrum Master_
+- As a Scrum Master, I want to see work distributed by assignee and flag items that have gone stale, so I can spot an overloaded teammate or a forgotten item the same way Process Health already does for Jira tickets.
+- Acceptance criteria:
+  - [ ] Item counts (total/done) grouped by assignee.
+  - [ ] Reuses the Process Health "stale after N days" rule (Story 3.1, Rule 3) against each item's last-changed date; N is configurable in the UI (default matches `DEFAULT_STALE_DAYS`).
+
+---
+
 ## 6. Architecture & Proposed Tech Stack
 
 ```
@@ -211,6 +252,12 @@ jira-sample.json       ──┐                                   ┌──▶ 
 confluence-sample.json  ─┼──▶  LLM (Claude API)  ────────────┤      · Ops Hub (home screen)
 ops-inbox-sample.json   ─┤     report / match / health /     │      · Report / Doc Linker / Process Health
 Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Teams message
+
+Sprint export, any tool  ──▶  parse (CSV/TSV/JSON) +         ──▶ Dashboard: Performance Import screen
+(Azure Boards, Jira,          normalize + 3 fixed templates       (stateless — nothing persisted,
+ Trello, spreadsheet;          (no LLM, no live API call to        no external tool's API involved)
+ pasted/uploaded by the         Azure, Jira, or anything else)
+ Scrum Master)
 ```
 
 **Proposed stack (prioritizing build speed within 7 days, and code an AI coding tool can generate accurately):**
@@ -323,6 +370,48 @@ Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Te
 }
 ```
 
+### Performance Import: sprint export from any tool (pasted/uploaded by the Scrum Master, Epic 6)
+
+Not a bundled fixture like the three above, and not tied to one tool —
+this is free-form text the Scrum Master pastes in each time, from
+whatever export they already have (an Azure Boards query, a Jira
+filter/CSV export, a Trello board export, or a hand-built spreadsheet).
+`data/performance-import-sample.csv` ships as a demo/reference example,
+using Azure's own column names as one illustration — but any of the
+alternates below work equally well. Recognized columns (case-insensitive;
+Azure's JSON field-reference names, e.g. `System.WorkItemType`, are also
+accepted — see `lib/data/performance-import.ts` for the full alias list):
+
+| Field | Accepted column names (any one matches) |
+|---|---|
+| ID | `ID`, `Key`, `Work Item ID`, `Issue Key`, `Ticket` |
+| Title | `Title`, `Summary`, `Name` |
+| Type | `Work Item Type`, `Issue Type`, `Type` |
+| State | `State`, `Status` |
+| Points | `Story Points`, `Story Point Estimate`, `Points`, `Estimate`, `Effort` |
+| Assignee | `Assigned To`, `Assignee`, `Owner` |
+| Sprint/iteration | `Iteration Path`, `Sprint`, `Iteration` |
+| Severity | `Severity`, `Priority`, `Bug Severity` |
+| Dates | `Created Date`/`Created`, `Changed Date`/`Updated`/`Last Updated`, `Closed Date`/`Resolved` |
+
+```csv
+ID,Work Item Type,Title,State,Story Points,Assigned To,Iteration Path,Severity,Created Date,Changed Date,Closed Date
+4501,Product Backlog Item,Add CSV export to the sprint dashboard,Closed,5,Minh Anh,Team Alpha\Sprint 24,,8/28/2026,9/9/2026,9/9/2026
+4503,Bug,Story points column not recognized when exported from a saved query,Active,2,Lan Pham,Team Alpha\Sprint 24,2 - High,9/1/2026,9/10/2026,
+```
+
+The equivalent Jira-style CSV (same data, different column names) works
+identically: `Key,Summary,Issue Type,Status,Story point estimate,Assignee,Sprint`.
+Pasting a range of cells directly out of Excel/Google Sheets (tab-separated,
+no CSV escaping) is also accepted — the delimiter is auto-detected.
+
+Only `Title`/`Summary` is strictly required; every other column is optional
+and degrades to a documented default (e.g. missing Story Points → `0`,
+counted in a data-quality warning shown in the UI, never a hard failure).
+The equivalent JSON shape is either a flat array of the same fields, or
+Azure's own query-export shape: `{ "workItems": [{ "id": ..., "fields":
+{ "System.Title": ..., "System.WorkItemType": ..., ... } }] }`.
+
 ### `teams-webhook-payload` (on "Send to Teams")
 ```json
 {
@@ -339,6 +428,7 @@ Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Te
 | Time to produce 1 sprint report | ~2–3 hours | < 5 minutes |
 | % of tickets with linked documentation detected | depends on the operator's memory | > 90% on the sample dataset |
 | Process gaps detected per sprint | usually detected late | detected immediately when the report runs |
+| Time to get a performance snapshot from a sprint export (any tool) | manual pivot tables/Excel, ~30–60 minutes | < 1 minute after pasting the export |
 
 > Note clearly when presenting: these numbers are **illustrative, to demonstrate the concept** on sample data, not a commitment already measured on a real production system.
 
