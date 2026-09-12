@@ -1,4 +1,4 @@
-# Sprint Signal — Product Specification (POC v1)
+# AgileCopilot — Product Specification (POC v1)
 
 > This file is the full technical spec meant to be fed directly into an AI coding tool (Claude Code, Cursor, etc.) to start building. The BMAD/SDLC content in Section 9 is **process discipline for building something of lasting value** (see Section 9); everything in Sections 1–8 is **the real product problem** — independent of which method is used to build it.
 >
@@ -30,7 +30,7 @@ Turn "reporting progress & keeping documentation tidy" from a Scrum Master's man
 - **Current pain points:** spends 2–3 hours at the end of every sprint gathering data from Jira/Confluence/Teams to write a report; constantly has to dig up "where is this document, who wrote it, is it still accurate"; on top of that, ends up holding onto work that could be delegated to someone else, forgets to reply to emails/messages that are waiting, and loses track of what's stuck waiting on someone's approval — they become the bottleneck for the whole team.
 - **Jobs-to-be-done:** "When the sprint ends, I want a trustworthy report with all the relevant documentation attached immediately, so I don't have to compile it by hand." + "I want one place that shows everything on my plate — what I have to do myself, what can be delegated, what's waiting on approval, which emails are unanswered — so I'm not the bottleneck myself."
 - **How they measure success:** report creation time drops from hours to under 5 minutes; no longer has to answer "where's document X" from memory; nothing gets forgotten because it's scattered across too many places.
-- **How they interact with the product:** the person who directly opens Sprint Signal, clicks "Generate Report," and handles process-health alerts.
+- **How they interact with the product:** the person who directly opens AgileCopilot, clicks "Generate Report," and handles process-health alerts.
 
 ### 2.2 PM & PO — secondary persona (report consumer)
 
@@ -326,7 +326,7 @@ Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Te
 ### `teams-webhook-payload` (on "Send to Teams")
 ```json
 {
-  "text": "**Sprint 24 — Automated Report**\n5/8 stories completed (velocity 18 points). 1 ticket missing documentation (OPS-102). View details: https://sprint-signal.local/report/SPR-24"
+  "text": "**Sprint 24 — Automated Report**\n5/8 stories completed (velocity 18 points). 1 ticket missing documentation (OPS-102). View details: https://agilecopilot.local/report/SPR-24"
 }
 ```
 
@@ -334,7 +334,7 @@ Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Te
 
 ## 8. Success Metrics (measured/illustrated in the demo)
 
-| Metric | Before (manual) | After (Sprint Signal) |
+| Metric | Before (manual) | After (AgileCopilot) |
 |---|---|---|
 | Time to produce 1 sprint report | ~2–3 hours | < 5 minutes |
 | % of tickets with linked documentation detected | depends on the operator's memory | > 90% on the sample dataset |
@@ -376,4 +376,4 @@ Principles while building:
 
 ---
 
-*This specification pairs with the "Sprint Signal" visual summary page (published separately) — use this file as the technical input for building, and the other page for presenting the idea.*
+*This specification pairs with the "AgileCopilot" visual summary page (published separately) — use this file as the technical input for building, and the other page for presenting the idea.*

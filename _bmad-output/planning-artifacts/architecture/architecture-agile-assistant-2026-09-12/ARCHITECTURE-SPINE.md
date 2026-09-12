@@ -1,10 +1,10 @@
 ---
-name: 'Sprint Signal'
+name: 'AgileCopilot'
 type: architecture-spine
 purpose: build-substrate
 altitude: feature
 paradigm: 'layered (UI → API routes → agent/LLM layer → JSON data fixtures)'
-scope: 'the Sprint Signal POC: Ops Hub, Auto Report, Doc Linker, Process Health'
+scope: 'the AgileCopilot POC: Ops Hub, Auto Report, Doc Linker, Process Health'
 status: draft
 created: '2026-09-12'
 updated: '2026-09-12'
@@ -13,7 +13,7 @@ sources: ['spec.md', '_bmad-output/planning-artifacts/prds/prd-agile-assistant-2
 companions: []
 ---
 
-# Architecture Spine — Sprint Signal
+# Architecture Spine — AgileCopilot
 
 ## Design Paradigm
 

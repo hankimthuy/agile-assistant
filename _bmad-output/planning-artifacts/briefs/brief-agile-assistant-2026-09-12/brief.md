@@ -1,8 +1,8 @@
-# Product Brief: Sprint Signal
+# Product Brief: AgileCopilot
 
 ## Executive Summary
 
-Sprint Signal turns "reporting sprint progress & keeping documentation tidy" from a Scrum Master's manual, hours-long chore into an automated, always-current background process. It sits as a connective layer over the tools a team already uses — Jira, Confluence, Teams — so that closing a ticket automatically produces a business-meaningful report, automatically links the right documentation, and automatically flags process steps that got skipped. A second, equally important layer — the Ops Hub — gives the Scrum Master one place to see everything on their plate (their own tasks, delegatable work, pending approvals, unanswered messages) so they stop being the bottleneck for the whole team.
+AgileCopilot turns "reporting sprint progress & keeping documentation tidy" from a Scrum Master's manual, hours-long chore into an automated, always-current background process. It sits as a connective layer over the tools a team already uses — Jira, Confluence, Teams — so that closing a ticket automatically produces a business-meaningful report, automatically links the right documentation, and automatically flags process steps that got skipped. A second, equally important layer — the Ops Hub — gives the Scrum Master one place to see everything on their plate (their own tasks, delegatable work, pending approvals, unanswered messages) so they stop being the bottleneck for the whole team.
 
 ## The Problem
 
@@ -12,7 +12,7 @@ Existing tools solve only fragments of this: engineering-intelligence platforms 
 
 ## The Solution
 
-Sprint Signal does not replace Jira or Confluence — it is the connective layer between them. At the end of a sprint, it reads ticket and documentation data and produces a narrative business report (not just dry metrics), automatically links relevant documentation to each ticket/epic, flags missing or orphaned documentation, and surfaces process-health gaps (missing acceptance criteria, stale tickets) as soon as they're detectable rather than after the fact. A fourth pillar, the Ops Hub, is the home screen: it gathers the Scrum Master's own tasks, delegatable work, pending approvals, and unanswered messages into one list, with AI-drafted delegation suggestions and reply drafts — always leaving the human as the final decision-maker.
+AgileCopilot does not replace Jira or Confluence — it is the connective layer between them. At the end of a sprint, it reads ticket and documentation data and produces a narrative business report (not just dry metrics), automatically links relevant documentation to each ticket/epic, flags missing or orphaned documentation, and surfaces process-health gaps (missing acceptance criteria, stale tickets) as soon as they're detectable rather than after the fact. A fourth pillar, the Ops Hub, is the home screen: it gathers the Scrum Master's own tasks, delegatable work, pending approvals, and unanswered messages into one list, with AI-drafted delegation suggestions and reply drafts — always leaving the human as the final decision-maker.
 
 ## What Makes This Different
 
@@ -39,4 +39,4 @@ The differentiation is the connective layer itself, not any single measurement: 
 
 ## Vision
 
-If it succeeds, Sprint Signal becomes the default connective layer agile teams install alongside Jira and Confluence — the place where "is this sprint actually creating business value" and "am I, the Scrum Master, still the bottleneck" both get answered automatically, for every team, not just the one that built it first.
+If it succeeds, AgileCopilot becomes the default connective layer agile teams install alongside Jira and Confluence — the place where "is this sprint actually creating business value" and "am I, the Scrum Master, still the bottleneck" both get answered automatically, for every team, not just the one that built it first.

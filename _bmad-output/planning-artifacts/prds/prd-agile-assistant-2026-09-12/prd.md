@@ -1,20 +1,19 @@
 ---
-title: Sprint Signal
+title: AgileCopilot
 created: 2026-09-12
 updated: 2026-09-12
 status: draft
 ---
 
-# PRD: Sprint Signal
-*Working title — confirm.*
+# PRD: AgileCopilot
 
 ## 0. Document Purpose
 
-This PRD is for whoever builds and pitches the Sprint Signal POC — primarily the Scrum Master driving the 7-day build, and the internal stakeholders/employer it will be pitched to. It is structured around the four product pillars (Ops Hub, Auto Report, Doc Linker, Process Health), with functional requirements numbered globally (FR-1 through FR-15) and grouped under the pillar they belong to. It builds on `spec.md` (the original technical spec this PRD distills) and the Product Brief in this same output tree — it does not duplicate their reasoning, only restates the decisions in PRD shape.
+This PRD is for whoever builds and pitches the AgileCopilot POC — primarily the Scrum Master driving the 7-day build, and the internal stakeholders/employer it will be pitched to. It is structured around the four product pillars (Ops Hub, Auto Report, Doc Linker, Process Health), with functional requirements numbered globally (FR-1 through FR-15) and grouped under the pillar they belong to. It builds on `spec.md` (the original technical spec this PRD distills) and the Product Brief in this same output tree — it does not duplicate their reasoning, only restates the decisions in PRD shape.
 
 ## 1. Vision
 
-Sprint Signal turns sprint reporting and documentation upkeep from a Scrum Master's manual burden into an automated, always-current background process, and gives that same Scrum Master one place to see everything on their plate so they stop being the team's bottleneck. It is a connective layer over Jira, Confluence, and Teams — not a replacement for any of them — so a closed ticket automatically produces a business-narrative report with the right documentation already attached, and process drift is visible the moment it happens rather than after it's already late.
+AgileCopilot turns sprint reporting and documentation upkeep from a Scrum Master's manual burden into an automated, always-current background process, and gives that same Scrum Master one place to see everything on their plate so they stop being the team's bottleneck. It is a connective layer over Jira, Confluence, and Teams — not a replacement for any of them — so a closed ticket automatically produces a business-narrative report with the right documentation already attached, and process drift is visible the moment it happens rather than after it's already late.
 
 ## 2. Target User
 
@@ -26,20 +25,20 @@ Sprint Signal turns sprint reporting and documentation upkeep from a Scrum Maste
 
 ### 2.2 Non-Users (v1)
 
-Individual contributors (developers, designers) are not direct users of Sprint Signal in v1 — they appear only as delegation targets or ticket assignees inside the data, never as people who log into the dashboard.
+Individual contributors (developers, designers) are not direct users of AgileCopilot in v1 — they appear only as delegation targets or ticket assignees inside the data, never as people who log into the dashboard.
 
 ### 2.3 Key User Journeys
 
 - **UJ-1. The Scrum Master closes out a sprint in minutes, not hours.**
   - **Persona + context:** the Scrum Master, at the end of Sprint 24, needs a report to send to PM/PO.
-  - **Entry state:** opens the Sprint Signal dashboard, sprint data already ingested from the sample Jira export.
+  - **Entry state:** opens the AgileCopilot dashboard, sprint data already ingested from the sample Jira export.
   - **Path:** clicks "Generate Report" → reviews the narrative + stat tiles → clicks "Send to Teams."
   - **Climax:** the report lands in the PM/PO's Teams channel within seconds, with a business-language summary and a link to the full dashboard.
   - **Resolution:** the Scrum Master has spent under 5 minutes instead of 2–3 hours; realizes FR-2, FR-3.
   - **Edge case:** some tickets are still "In Progress" when the report runs — the narrative still reads sensibly rather than looking broken.
 
 - **UJ-2. The Scrum Master stops being the bottleneck.**
-  - **Persona + context:** the Scrum Master opens Sprint Signal at the start of the day, not sure what's most urgent.
+  - **Persona + context:** the Scrum Master opens AgileCopilot at the start of the day, not sure what's most urgent.
   - **Entry state:** the Ops Hub is the home screen; ops-inbox sample data is already ingested.
   - **Path:** scans the four columns (My Work / Delegatable / Awaiting Approval / Needs Reply) → sees a delegation suggestion with a reason → clicks "Delegate" → sees a pending approval waiting 4 days → clicks "Draft reminder" → copies the drafted text and sends it themselves.
   - **Climax:** the Scrum Master has moved or actioned every item without hunting across Jira/Teams/email.
@@ -195,7 +194,7 @@ The Scrum Master can see every violating ticket, ranked by severity.
 
 ## 5. Non-Goals (Explicit)
 
-- Sprint Signal is not a Jira or Confluence replacement — it never becomes the system of record for tickets or docs.
+- AgileCopilot is not a Jira or Confluence replacement — it never becomes the system of record for tickets or docs.
 - It will not send any message or email automatically on the user's behalf; every send/assign action is a human click.
 - It will not support multiple concurrent projects/departments in v1.
 - It will not include ML-based risk prediction or a mobile app in v1.
