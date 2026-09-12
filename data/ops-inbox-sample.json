@@ -1,0 +1,78 @@
+{
+  "items": [
+    {
+      "id": "OPS-INBOX-1",
+      "type": "task",
+      "title": "Prepare Sprint 24 retro slides",
+      "source": "jira",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-08",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-2",
+      "type": "delegatable",
+      "title": "Update the internal changelog for Sprint 24",
+      "source": "teams",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-07",
+      "candidateAssignees": ["Huy Tran", "Lan Pham"]
+    },
+    {
+      "id": "OPS-INBOX-3",
+      "type": "pending_approval",
+      "title": "Approve additional budget for a monitoring tool license",
+      "source": "email",
+      "owner": "Scrum Master",
+      "waitingOn": "Head of Engineering",
+      "sentDate": "2026-09-05",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-4",
+      "type": "needs_email",
+      "title": "Reply to internal stakeholder on OPS-101 progress",
+      "source": "email",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-09",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-5",
+      "type": "task",
+      "title": "Update sprint board columns for Sprint 25",
+      "source": "jira",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-11",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-6",
+      "type": "delegatable",
+      "title": "Archive completed Confluence pages from Sprint 23",
+      "source": "jira",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-06",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-7",
+      "type": "pending_approval",
+      "title": "Approve access request for a new CI runner",
+      "source": "teams",
+      "owner": "Scrum Master",
+      "waitingOn": "IT Security Lead",
+      "sentDate": "2026-09-10",
+      "candidateAssignees": []
+    },
+    {
+      "id": "OPS-INBOX-8",
+      "type": "needs_email",
+      "title": "Respond to client question about the Sprint 24 delivery date",
+      "source": "email",
+      "owner": "Scrum Master",
+      "createdDate": "2026-09-10",
+      "candidateAssignees": []
+    }
+  ]
+}

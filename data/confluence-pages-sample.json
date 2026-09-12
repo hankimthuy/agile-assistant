@@ -1,0 +1,40 @@
+{
+  "pages": [
+    {
+      "title": "Weekly Report Export Process",
+      "url": "https://confluence.internal/reporting-process",
+      "labels": ["reporting", "automation"],
+      "lastUpdated": "2026-08-20"
+    },
+    {
+      "title": "Customer Data Security Policy (v3, outdated)",
+      "url": "https://confluence.internal/security-policy-v3",
+      "labels": ["security"],
+      "lastUpdated": "2025-11-02"
+    },
+    {
+      "title": "Onboarding Guide Draft v1",
+      "url": "https://confluence.internal/onboarding-guide-draft",
+      "labels": ["onboarding"],
+      "lastUpdated": "2026-07-01"
+    },
+    {
+      "title": "CI Pipeline Runbook",
+      "url": "https://confluence.internal/ci-pipeline-runbook",
+      "labels": ["ci", "infra", "runbook"],
+      "lastUpdated": "2026-06-15"
+    },
+    {
+      "title": "Release Notes Guidelines",
+      "url": "https://confluence.internal/release-notes-guidelines",
+      "labels": ["release"],
+      "lastUpdated": "2026-05-01"
+    },
+    {
+      "title": "Timeout Configuration Defaults",
+      "url": "https://confluence.internal/timeout-config-defaults",
+      "labels": ["config"],
+      "lastUpdated": "2026-04-10"
+    }
+  ]
+}

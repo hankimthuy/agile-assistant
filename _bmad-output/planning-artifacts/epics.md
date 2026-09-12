@@ -6,11 +6,11 @@ inputDocuments:
   - spec.md
 ---
 
-# Sprint Signal - Epic Breakdown
+# AgileCopilot - Epic Breakdown
 
 ## Overview
 
-This document provides the complete epic and story breakdown for Sprint Signal, decomposing the requirements from the PRD and Architecture Spine into implementable stories for the 7-day POC build.
+This document provides the complete epic and story breakdown for AgileCopilot, decomposing the requirements from the PRD and Architecture Spine into implementable stories for the 7-day POC build.
 
 ## Requirements Inventory
 

@@ -1,0 +1,98 @@
+{
+  "sprint": {
+    "id": "SPR-24",
+    "name": "Sprint 24",
+    "startDate": "2026-09-01",
+    "endDate": "2026-09-11"
+  },
+  "tickets": [
+    {
+      "id": "OPS-101",
+      "title": "Automate weekly report export",
+      "type": "story",
+      "status": "done",
+      "storyPoints": 5,
+      "assignee": "Minh Anh",
+      "acceptanceCriteria": "Report exports in the correct format and is emailed at 9am every Monday",
+      "labels": ["reporting", "automation"],
+      "lastUpdated": "2026-09-09"
+    },
+    {
+      "id": "OPS-102",
+      "title": "Standardize the team documentation folder structure",
+      "type": "task",
+      "status": "in_progress",
+      "storyPoints": 3,
+      "assignee": "Huy Tran",
+      "acceptanceCriteria": "",
+      "labels": ["documentation"],
+      "lastUpdated": "2026-08-30"
+    },
+    {
+      "id": "OPS-103",
+      "title": "Fix login timeout bug",
+      "type": "bug",
+      "status": "done",
+      "storyPoints": 2,
+      "assignee": "Lan Pham",
+      "acceptanceCriteria": "Users are no longer logged out during an active session; session extends on activity",
+      "labels": ["auth", "bugfix"],
+      "lastUpdated": "2026-09-10"
+    },
+    {
+      "id": "OPS-104",
+      "title": "Investigate intermittent API 500 errors",
+      "type": "bug",
+      "status": "in_progress",
+      "storyPoints": 3,
+      "assignee": "Duc Nguyen",
+      "acceptanceCriteria": "",
+      "labels": ["api", "bugfix"],
+      "lastUpdated": "2026-09-11"
+    },
+    {
+      "id": "OPS-105",
+      "title": "Draft onboarding guide for new hires",
+      "type": "task",
+      "status": "to_do",
+      "storyPoints": 2,
+      "assignee": "Minh Anh",
+      "acceptanceCriteria": "Guide covers environment setup, key contacts, and a first-week checklist",
+      "labels": ["onboarding", "documentation"],
+      "lastUpdated": "2026-09-02"
+    },
+    {
+      "id": "OPS-106",
+      "title": "Improve CI pipeline caching",
+      "type": "task",
+      "status": "done",
+      "storyPoints": 3,
+      "assignee": "Huy Tran",
+      "acceptanceCriteria": "CI build time drops by at least 30% on cache hit",
+      "labels": ["ci", "infra"],
+      "lastUpdated": "2026-09-08"
+    },
+    {
+      "id": "OPS-107",
+      "title": "Refresh the customer release template",
+      "type": "task",
+      "status": "done",
+      "storyPoints": 1,
+      "assignee": "Lan Pham",
+      "acceptanceCriteria": "Template includes a highlights section and a links-to-docs footer",
+      "labels": ["release", "docs"],
+      "lastUpdated": "2026-09-07"
+    },
+    {
+      "id": "OPS-108",
+      "title": "Improve login timeout handling flow",
+      "type": "task",
+      "status": "done",
+      "storyPoints": 2,
+      "assignee": "Duc Nguyen",
+      "acceptanceCriteria": "Session extends automatically on activity; a timeout warning shows 1 minute prior",
+      "labels": ["auth", "session"],
+      "lastUpdated": "2026-09-06"
+    }
+  ]
+}
