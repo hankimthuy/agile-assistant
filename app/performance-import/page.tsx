@@ -4,17 +4,17 @@ import { useRef, useState } from 'react';
 import { StatTile } from '@/components/StatTile';
 import { useToast } from '@/components/ToastProvider';
 import { DEFAULT_STALE_DAYS } from '@/lib/config';
-import type { AzureImportFormat } from '@/lib/data/azure';
-import type { AzureImportReport } from '@/lib/types';
+import type { ImportFormat } from '@/lib/data/performance-import';
+import type { PerformanceImportReport } from '@/lib/types';
 
-export default function AzureImportPage() {
+export default function PerformanceImportPage() {
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [format, setFormat] = useState<AzureImportFormat>('csv');
+  const [format, setFormat] = useState<ImportFormat>('csv');
   const [raw, setRaw] = useState('');
   const [staleDays, setStaleDays] = useState(DEFAULT_STALE_DAYS);
-  const [report, setReport] = useState<AzureImportReport | null>(null);
+  const [report, setReport] = useState<PerformanceImportReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
@@ -22,12 +22,12 @@ export default function AzureImportPage() {
   async function loadSample() {
     setLoadingSample(true);
     try {
-      const res = await fetch('/api/azure-import');
+      const res = await fetch('/api/performance-import');
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Failed to load sample data');
       setFormat(data.format);
       setRaw(data.raw);
-      showToast('Sample Azure export loaded — click Analyze', 'success');
+      showToast('Sample export loaded — click Analyze', 'success');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to load sample data', 'error');
     } finally {
@@ -39,8 +39,10 @@ export default function AzureImportPage() {
     const reader = new FileReader();
     reader.onload = () => {
       setRaw(String(reader.result ?? ''));
+      // .csv/.tsv/.txt all go through the same delimiter-auto-detecting
+      // CSV/TSV parser — only .json needs the other code path.
       if (file.name.toLowerCase().endsWith('.json')) setFormat('json');
-      else if (file.name.toLowerCase().endsWith('.csv')) setFormat('csv');
+      else setFormat('csv');
     };
     reader.readAsText(file);
   }
@@ -49,16 +51,16 @@ export default function AzureImportPage() {
     setAnalyzing(true);
     setError(null);
     try {
-      const res = await fetch('/api/azure-import', {
+      const res = await fetch('/api/performance-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format, raw, staleDays }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Failed to process the Azure import');
+      if (!res.ok) throw new Error(data.error ?? 'Failed to process the import');
       setReport(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process the Azure import');
+      setError(err instanceof Error ? err.message : 'Failed to process the import');
       setReport(null);
     } finally {
       setAnalyzing(false);
@@ -68,25 +70,29 @@ export default function AzureImportPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Azure Import</h1>
+        <h1 className="text-xl font-semibold text-gray-900">Performance Import</h1>
         <p className="text-sm text-gray-500">
-          Paste or upload a JSON/CSV export from an Azure Boards query for one sprint. Nothing is sent to Azure
-          DevOps — this only reads the text you give it.
+          Paste or upload a sprint export — CSV, TSV (cells copied straight out of Excel/Google Sheets also work),
+          or JSON — from Azure Boards, Jira, Trello, or any spreadsheet with the right columns. Nothing is sent
+          anywhere — this only reads the text/file you give it.
         </p>
       </div>
 
       <div className="space-y-3 rounded-lg border bg-white p-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex gap-1 rounded border p-0.5">
-            {(['csv', 'json'] as const).map((f) => (
+            {([
+              { value: 'csv', label: 'CSV/TSV' },
+              { value: 'json', label: 'JSON' },
+            ] as const).map(({ value, label }) => (
               <button
-                key={f}
-                onClick={() => setFormat(f)}
-                className={`rounded px-3 py-1 text-sm font-medium uppercase ${
-                  format === f ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'
+                key={value}
+                onClick={() => setFormat(value)}
+                className={`rounded px-3 py-1 text-sm font-medium ${
+                  format === value ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                {f}
+                {label}
               </button>
             ))}
           </div>
@@ -100,7 +106,7 @@ export default function AzureImportPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,.json"
+            accept=".csv,.tsv,.txt,.json"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -135,7 +141,7 @@ export default function AzureImportPage() {
           onChange={(e) => setRaw(e.target.value)}
           placeholder={
             format === 'csv'
-              ? 'Paste CSV rows here (ID, Work Item Type, Title, State, Story Points, Assigned To, Iteration Path, ...)'
+              ? 'Paste CSV/TSV rows here — e.g. ID, Title/Summary, Type, State/Status, Story Points/Estimate, Assignee/Owner, Sprint, ...'
               : 'Paste a JSON array of work items here'
           }
           rows={8}

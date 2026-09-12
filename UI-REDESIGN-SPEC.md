@@ -29,7 +29,7 @@ Five screens, one flat-level nav, no nesting:
 | `/report` | Auto Report | No — reached via nav |
 | `/process-health` | Process Health | No — reached via nav |
 | `/doc-linker` | Doc Linker | No — reached via nav |
-| `/azure-import` | Azure Import | No — reached via nav, and also promoted via a callout on the Ops Hub home screen (§4) |
+| `/performance-import` | Performance Import | No — reached via nav, and also promoted via a callout on the Ops Hub home screen (§4) |
 | `/report/:sprintId` | (redirects to `/report`) | Deep link target from the Teams message; this POC only ever has one sprint in play |
 
 Current nav (`components/Nav.tsx`) is a static top bar: product name +
@@ -100,8 +100,8 @@ they stop being the bottleneck (realizes UJ-2 in the PRD).
 
 **Layout today:** a header (title + a numeric "overdue-approval threshold"
 input, default 3 days), then an `InfoBanner` callout (`components/InfoBanner.tsx`)
-introducing Azure Import with a link to `/azure-import` (spec.md Epic 6,
-Pillar 5) — the one static, non-dismissible piece of promotional copy on
+introducing Performance Import with a link to `/performance-import`
+(spec.md Epic 6, Pillar 5) — the one static, non-dismissible piece of promotional copy on
 this screen — above a 4-column grid (1 column on mobile, 2 on tablet, 4 on
 desktop). Each column is one group:
 
@@ -278,31 +278,36 @@ needed" call for this feature):
 A ticket has at most one match (its single best-scoring doc); a doc can
 match multiple tickets and is only "orphaned" if it matches none.
 
-## 8. Screen: Azure Import (`/azure-import`)
+## 8. Screen: Performance Import (`/performance-import`)
 
-**Purpose:** an on-demand performance snapshot for teams whose board of
-record is Azure Boards instead of Jira — paste/upload one export, get 3
-fixed report templates back (spec.md Pillar 5 / Epic 6). Unlike every other
+**Purpose:** an on-demand performance snapshot for a sprint tracked in
+*any* tool — Azure Boards, Jira, Trello, a plain spreadsheet — paste/upload
+one export, get 3 fixed report templates back (spec.md Pillar 5 / Epic 6).
+Deliberately source-agnostic: the screen never asks which tool the export
+came from, only that it has recognizable columns. Unlike every other
 screen, there is no background data source: nothing loads on mount, and
 nothing is remembered between visits.
 
 **Data sources:**
-- `GET /api/azure-import` → `{ format: 'csv', raw: string }` — backs the
-  "Load sample data" button only (reads the bundled
-  `data/azure-sprint-sample.csv`), not used on page load.
-- `POST /api/azure-import` `{ format: 'json' | 'csv', raw: string,
-  staleDays?: number }` → `AzureImportReport` — triggered by "Analyze".
+- `GET /api/performance-import` → `{ format: 'csv', raw: string }` — backs
+  the "Load sample data" button only (reads the bundled
+  `data/performance-import-sample.csv`), not used on page load.
+- `POST /api/performance-import` `{ format: 'json' | 'csv', raw: string,
+  staleDays?: number }` → `PerformanceImportReport` — triggered by
+  "Analyze". `format: 'csv'` covers both comma- and tab-delimited text;
+  the delimiter is auto-detected server-side.
 
 **Layout today, top to bottom:**
-1. Header: title + a one-line disclosure that nothing is sent to Azure
-   DevOps.
-2. An input card: a CSV/JSON format toggle, an "Upload file…" button
-   (reads the picked file into the textarea via `FileReader`, and infers
-   format from the file extension), a "Load sample data" button, a "Stale
-   after {n} days" numeric input (default `DEFAULT_STALE_DAYS`, same
-   pattern as Ops Hub's overdue-approval input), a multi-line textarea for
-   the pasted export, and an "Analyze" button (disabled while empty or
-   in flight).
+1. Header: title + a one-line disclosure that nothing is sent anywhere —
+   it only reads the text/file given to it.
+2. An input card: a CSV/TSV vs. JSON format toggle, an "Upload file…"
+   button (reads the picked file into the textarea via `FileReader`, and
+   infers format from the file extension — `.csv`/`.tsv`/`.txt` all map to
+   the CSV/TSV path, `.json` to the JSON path), a "Load sample data"
+   button, a "Stale after {n} days" numeric input (default
+   `DEFAULT_STALE_DAYS`, same pattern as Ops Hub's overdue-approval
+   input), a multi-line textarea for the pasted export, and an "Analyze"
+   button (disabled while empty or in flight).
 3. A red error banner on a failed/invalid import (same non-crashing
    pattern as `/report`'s sprint-validation banner).
 4. After a successful analysis: the derived sprint/iteration label, an
@@ -315,30 +320,31 @@ nothing is remembered between visits.
    - **Quality & Bug Health** — 4 stat tiles (total/open/closed bugs, bug
      ratio), a one-line headline, a severity breakdown table **or** a
      "Severity column not found in this export" note when the export has
-     no severity data.
+     no severity/priority data.
    - **Workload & Aging** — a one-line headline, a by-assignee table
      (total/done), and a stale-items list (id, title, days since update) —
      empty when nothing is stale. This reuses the exact "stale after N
-     days" rule from Process Health §6, applied to Azure data.
+     days" rule from Process Health §6, applied to imported data.
 
 **States:**
 - Idle: empty textarea, "Analyze" disabled.
 - Loading sample: "Load sample data" reads "Loading…" and is disabled.
 - Analyzing: "Analyze" reads "Analyzing…" and is disabled.
 - Import error: a red banner with the server's plain-language message
-  (e.g. "Paste or upload an Azure Boards export first.", or "No row had a
-  recognizable Title — check the export and try again."); no report
-  sections render underneath it.
+  (e.g. "Paste or upload a sprint export first.", or "No row had a
+  recognizable Title/Summary column — check the export and try again.");
+  no report sections render underneath it.
 - Populated: as described above. Re-running "Analyze" (e.g. after editing
   the textarea or changing the stale-days threshold) replaces the whole
   report.
 
 **Interactions:**
-1. **Format toggle (CSV/JSON)** — switches the expected paste format and
-   the textarea's placeholder text; does not clear what's already pasted.
-2. **Upload file…** — opens a native file picker (`.csv`/`.json`); on
-   selection, reads the file's text into the textarea and sets the format
-   toggle from the file extension.
+1. **Format toggle (CSV/TSV vs. JSON)** — switches the expected paste
+   format and the textarea's placeholder text; does not clear what's
+   already pasted.
+2. **Upload file…** — opens a native file picker (`.csv`/`.tsv`/`.txt`/
+   `.json`); on selection, reads the file's text into the textarea and
+   sets the format toggle from the file extension.
 3. **Load sample data** — fetches the bundled sample CSV and fills the
    textarea, so the screen is demoable with zero setup.
 4. **Stale after (n) days** — only takes effect on the next "Analyze"
@@ -353,7 +359,13 @@ lenient than sample-fixture screens elsewhere in the app — a merely
 incomplete export (missing an optional column, an unrecognized work-item
 type/state) still produces a full report with the gap surfaced as a
 warning, never a blocked/broken page. Only unusable input (empty paste,
-no parseable rows, no row with a Title) is a hard error.
+no parseable rows, no row with a Title/Summary) is a hard error.
+
+**Multi-tool column recognition:** the same textarea accepts an Azure
+CSV export, a Jira CSV export, or a plain spreadsheet — see spec.md's
+Data Schema section (Epic 6) for the full column-alias table. There is no
+per-tool mode to pick; the parser just looks for whichever recognizable
+column names are present.
 
 ## 9. Shared components inventory
 
@@ -362,9 +374,9 @@ no parseable rows, no row with a Title) is a hard error.
 | `Nav` | `components/Nav.tsx` | Every screen (in the root layout) |
 | `ToastProvider` / `useToast` | `components/ToastProvider.tsx` | Every screen (error/success notifications) |
 | `SeverityBadge`, `ConfidenceBadge` | `components/Badge.tsx` | Process Health, Doc Linker |
-| `StatTile` | `components/StatTile.tsx` | Report, Azure Import |
+| `StatTile` | `components/StatTile.tsx` | Report, Performance Import |
 | `OpsItemCard` | `components/OpsItemCard.tsx` | Ops Hub (all 4 groups) |
-| `InfoBanner` | `components/InfoBanner.tsx` | Ops Hub (Azure Import callout) |
+| `InfoBanner` | `components/InfoBanner.tsx` | Ops Hub (Performance Import callout) |
 
 A redesign is free to restructure these however it wants; the table above is
 just so nothing gets missed. Toasts specifically: currently a fixed
@@ -408,9 +420,10 @@ interface ReportResult {
 interface DelegationSuggestion { itemId: string; label: 'should_do_myself'|'can_delegate'; reason: string; }
 interface DraftResult { itemId: string; subject: string; body: string; generatedByLLM: boolean; }
 
-// Azure Import (Pillar 5) — POST /api/azure-import request/response
-interface AzureImportRequest { format: 'json' | 'csv'; raw: string; staleDays?: number; }
-interface AzureImportReport {
+// Performance Import (Pillar 5) — POST /api/performance-import request/response.
+// format: 'csv' covers both comma- and tab-delimited text (auto-detected).
+interface PerformanceImportRequest { format: 'json' | 'csv'; raw: string; staleDays?: number; }
+interface PerformanceImportReport {
   sprintLabel: string;
   velocity: { totalItems: number; doneItems: number; completionRate: number; velocity: number;
     byType: Record<'story'|'task'|'bug'|'other', { total: number; done: number }>; headline: string; };
@@ -445,5 +458,5 @@ This spec does not propose colors, type scales, spacing, or component
 visuals — that is the redesign's job. It also doesn't cover functionality
 that doesn't exist yet (multi-project support, auth, persisted delegation
 state, live Jira/Confluence/Teams/Azure DevOps connectors, multi-sprint
-trend/burndown from Azure data) — see the Architecture Spine's "Deferred"
+trend/burndown from an imported export) — see the Architecture Spine's "Deferred"
 section for what's intentionally out of scope for this POC stage.

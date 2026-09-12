@@ -1,23 +1,25 @@
-// The 3 fixed report templates for Azure Performance Import (spec.md
-// Epic 6): Velocity & Completion, Quality & Bug Health, Workload & Aging.
-// Pure functions, no I/O — same shape as lib/metrics.ts and (for the
+// The 3 fixed report templates for Performance Import (spec.md Epic 6):
+// Velocity & Completion, Quality & Bug Health, Workload & Aging. Pure
+// functions, no I/O — same shape as lib/metrics.ts and (for the
 // stale-item rule) lib/process-health.ts, which this deliberately mirrors
-// rather than duplicating logic for.
+// rather than duplicating logic for. Source-agnostic: these operate on
+// the normalized ImportedWorkItem shape regardless of which tool the
+// export came from.
 
 import { daysSince } from './config';
 import type {
-  AzureImportReport,
-  AzureImportResult,
-  AzureQualityReport,
-  AzureVelocityReport,
-  AzureWorkItem,
-  AzureWorkloadReport,
+  ImportedWorkItem,
+  PerformanceImportReport,
+  PerformanceImportResult,
+  QualityReport,
   TicketType,
+  VelocityReport,
+  WorkloadReport,
 } from './types';
 
 const WORK_ITEM_TYPES: (TicketType | 'other')[] = ['story', 'task', 'bug', 'other'];
 
-export function computeVelocityReport(items: AzureWorkItem[]): AzureVelocityReport {
+export function computeVelocityReport(items: ImportedWorkItem[]): VelocityReport {
   const doneItems = items.filter((i) => i.state === 'done');
   const velocity = doneItems.reduce((sum, i) => sum + i.storyPoints, 0);
   const completionRate = items.length === 0 ? 0 : doneItems.length / items.length;
@@ -27,7 +29,7 @@ export function computeVelocityReport(items: AzureWorkItem[]): AzureVelocityRepo
       const ofType = items.filter((i) => i.workItemType === type);
       return [type, { total: ofType.length, done: ofType.filter((i) => i.state === 'done').length }];
     })
-  ) as AzureVelocityReport['byType'];
+  ) as VelocityReport['byType'];
 
   const pct = Math.round(completionRate * 100);
   const headline = `${velocity} point${velocity === 1 ? '' : 's'} done across ${doneItems.length}/${items.length} item${
@@ -37,7 +39,7 @@ export function computeVelocityReport(items: AzureWorkItem[]): AzureVelocityRepo
   return { totalItems: items.length, doneItems: doneItems.length, completionRate, velocity, byType, headline };
 }
 
-export function computeQualityReport(items: AzureWorkItem[]): AzureQualityReport {
+export function computeQualityReport(items: ImportedWorkItem[]): QualityReport {
   const bugs = items.filter((i) => i.workItemType === 'bug');
   const openBugs = bugs.filter((i) => i.state !== 'done').length;
   const closedBugs = bugs.filter((i) => i.state === 'done').length;
@@ -60,7 +62,7 @@ export function computeQualityReport(items: AzureWorkItem[]): AzureQualityReport
   return { totalBugs: bugs.length, openBugs, closedBugs, bugRatio, hasSeverityData: bySeverity.length > 0, bySeverity, headline };
 }
 
-export function computeWorkloadReport(items: AzureWorkItem[], staleDays: number): AzureWorkloadReport {
+export function computeWorkloadReport(items: ImportedWorkItem[], staleDays: number): WorkloadReport {
   const byAssigneeMap = new Map<string, { total: number; done: number }>();
   for (const item of items) {
     const entry = byAssigneeMap.get(item.assignedTo) ?? { total: 0, done: 0 };
@@ -74,8 +76,8 @@ export function computeWorkloadReport(items: AzureWorkItem[], staleDays: number)
 
   // Mirrors lib/process-health.ts's stale rule: not updated in > N days.
   // Only items with a usable date can be judged — undated rows are
-  // skipped (already reflected as a warning by lib/data/azure.ts when
-  // the whole export lacks a date column).
+  // skipped (already reflected as a warning by lib/data/performance-import.ts
+  // when the whole export lacks a date column).
   const staleItems = items
     .filter((i) => !!(i.changedDate ?? i.createdDate) && i.state !== 'done')
     .map((i) => ({ id: i.id, title: i.title, daysSinceUpdate: daysSince((i.changedDate ?? i.createdDate)!) }))
@@ -90,7 +92,10 @@ export function computeWorkloadReport(items: AzureWorkItem[], staleDays: number)
   return { byAssignee, staleDays, staleItems, headline };
 }
 
-export function computeAzureImportReport(data: AzureImportResult, staleDays: number): AzureImportReport {
+export function computePerformanceImportReport(
+  data: PerformanceImportResult,
+  staleDays: number
+): PerformanceImportReport {
   return {
     sprintLabel: data.sprintLabel,
     velocity: computeVelocityReport(data.workItems),

@@ -116,13 +116,15 @@ export interface ApiError {
   error: string;
 }
 
-// --- Azure Performance Import (Pillar 5) ---
-// Normalized shape for one row of a pasted/uploaded Azure Boards query
-// export (JSON or CSV). "raw*" fields keep the original Azure value for
-// display, since Azure's own vocabulary (work item types, states) varies
-// per process template and shouldn't be silently discarded.
+// --- Performance Import (Pillar 5) ---
+// Normalized shape for one row of a pasted/uploaded work-item export —
+// CSV, TSV (e.g. pasted straight out of Excel), or JSON — from *any*
+// source (Azure Boards, Jira, Trello, a plain spreadsheet, ...), not just
+// one specific tool. "raw*" fields keep the original source value for
+// display, since vocabulary for work-item type/state varies per tool and
+// shouldn't be silently discarded.
 
-export interface AzureWorkItem {
+export interface ImportedWorkItem {
   id: string;
   title: string;
   workItemType: TicketType | 'other';
@@ -138,13 +140,13 @@ export interface AzureWorkItem {
   closedDate?: string;
 }
 
-export interface AzureImportResult {
+export interface PerformanceImportResult {
   sprintLabel: string;
-  workItems: AzureWorkItem[];
+  workItems: ImportedWorkItem[];
   warnings: string[];
 }
 
-export interface AzureVelocityReport {
+export interface VelocityReport {
   totalItems: number;
   doneItems: number;
   completionRate: number; // 0..1
@@ -153,44 +155,44 @@ export interface AzureVelocityReport {
   headline: string;
 }
 
-export interface AzureSeverityCount {
+export interface SeverityCount {
   severity: string;
   count: number;
 }
 
-export interface AzureQualityReport {
+export interface QualityReport {
   totalBugs: number;
   openBugs: number;
   closedBugs: number;
   bugRatio: number; // bugs / totalItems, 0..1
   hasSeverityData: boolean;
-  bySeverity: AzureSeverityCount[];
+  bySeverity: SeverityCount[];
   headline: string;
 }
 
-export interface AzureAssigneeWorkload {
+export interface AssigneeWorkload {
   assignee: string;
   total: number;
   done: number;
 }
 
-export interface AzureStaleItem {
+export interface StaleItem {
   id: string;
   title: string;
   daysSinceUpdate: number;
 }
 
-export interface AzureWorkloadReport {
-  byAssignee: AzureAssigneeWorkload[];
+export interface WorkloadReport {
+  byAssignee: AssigneeWorkload[];
   staleDays: number;
-  staleItems: AzureStaleItem[];
+  staleItems: StaleItem[];
   headline: string;
 }
 
-export interface AzureImportReport {
+export interface PerformanceImportReport {
   sprintLabel: string;
-  velocity: AzureVelocityReport;
-  quality: AzureQualityReport;
-  workload: AzureWorkloadReport;
+  velocity: VelocityReport;
+  quality: QualityReport;
+  workload: WorkloadReport;
   warnings: string[];
 }

@@ -71,10 +71,10 @@ export default function OpsHubPage() {
       </div>
 
       <InfoBanner
-        title="New: Azure Performance Import."
-        body="Paste or upload a JSON/CSV export from an Azure Boards query for your sprint to get an instant Velocity, Quality, and Workload snapshot — no live Azure DevOps connection required."
-        linkHref="/azure-import"
-        linkLabel="Try Azure Import →"
+        title="New: Performance Import."
+        body="Paste or upload a CSV, TSV (straight from Excel/Sheets), or JSON export for your sprint — from Azure Boards, Jira, Trello, or any spreadsheet with the right columns — to get an instant Velocity, Quality, and Workload snapshot. No live connection to any tool required."
+        linkHref="/performance-import"
+        linkLabel="Try Performance Import →"
       />
 
       {error && (
