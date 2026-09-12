@@ -1,0 +1,9 @@
+ID,Work Item Type,Title,State,Story Points,Assigned To,Iteration Path,Severity,Created Date,Changed Date,Closed Date
+4501,Product Backlog Item,Add CSV export to the sprint dashboard,Closed,5,Minh Anh,Team Alpha\Sprint 24,,8/28/2026,9/9/2026,9/9/2026
+4502,Task,Wire up the Azure export upload control,Closed,3,Huy Tran,Team Alpha\Sprint 24,,8/29/2026,9/8/2026,9/8/2026
+4503,Bug,Story points column not recognized when exported from a saved query,Active,2,Lan Pham,Team Alpha\Sprint 24,2 - High,9/1/2026,9/10/2026,
+4504,Product Backlog Item,Normalize Azure Boards state values across process templates,New,8,Huy Tran,Team Alpha\Sprint 24,,9/2/2026,9/3/2026,
+4505,Task,Document expected Azure export columns in spec.md,Closed,1,Minh Anh,Team Alpha\Sprint 24,,9/3/2026,9/6/2026,9/6/2026
+4506,Bug,Severity breakdown table not shown when Severity column is missing,Closed,1,Lan Pham,Team Alpha\Sprint 24,3 - Medium,9/4/2026,9/5/2026,9/5/2026
+4507,Product Backlog Item,Add stale-item threshold control to the Azure Import page,Active,3,Minh Anh,Team Alpha\Sprint 24,,8/20/2026,8/24/2026,
+4508,Task,Write the RFC4180 CSV parser,Closed,2,Huy Tran,Team Alpha\Sprint 24,,8/27/2026,9/1/2026,9/1/2026

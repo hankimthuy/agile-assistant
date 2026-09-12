@@ -115,3 +115,82 @@ export interface DraftResult {
 export interface ApiError {
   error: string;
 }
+
+// --- Azure Performance Import (Pillar 5) ---
+// Normalized shape for one row of a pasted/uploaded Azure Boards query
+// export (JSON or CSV). "raw*" fields keep the original Azure value for
+// display, since Azure's own vocabulary (work item types, states) varies
+// per process template and shouldn't be silently discarded.
+
+export interface AzureWorkItem {
+  id: string;
+  title: string;
+  workItemType: TicketType | 'other';
+  rawWorkItemType: string;
+  state: TicketStatus | 'other';
+  rawState: string;
+  storyPoints: number;
+  assignedTo: string;
+  iterationPath: string;
+  severity?: string;
+  createdDate?: string;
+  changedDate?: string;
+  closedDate?: string;
+}
+
+export interface AzureImportResult {
+  sprintLabel: string;
+  workItems: AzureWorkItem[];
+  warnings: string[];
+}
+
+export interface AzureVelocityReport {
+  totalItems: number;
+  doneItems: number;
+  completionRate: number; // 0..1
+  velocity: number; // sum of storyPoints on done items
+  byType: Record<TicketType | 'other', { total: number; done: number }>;
+  headline: string;
+}
+
+export interface AzureSeverityCount {
+  severity: string;
+  count: number;
+}
+
+export interface AzureQualityReport {
+  totalBugs: number;
+  openBugs: number;
+  closedBugs: number;
+  bugRatio: number; // bugs / totalItems, 0..1
+  hasSeverityData: boolean;
+  bySeverity: AzureSeverityCount[];
+  headline: string;
+}
+
+export interface AzureAssigneeWorkload {
+  assignee: string;
+  total: number;
+  done: number;
+}
+
+export interface AzureStaleItem {
+  id: string;
+  title: string;
+  daysSinceUpdate: number;
+}
+
+export interface AzureWorkloadReport {
+  byAssignee: AzureAssigneeWorkload[];
+  staleDays: number;
+  staleItems: AzureStaleItem[];
+  headline: string;
+}
+
+export interface AzureImportReport {
+  sprintLabel: string;
+  velocity: AzureVelocityReport;
+  quality: AzureQualityReport;
+  workload: AzureWorkloadReport;
+  warnings: string[];
+}

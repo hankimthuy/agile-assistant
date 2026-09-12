@@ -21,7 +21,7 @@ functional requirements" to "the actual screen you'd be redesigning."
 
 ## 1. Navigation & information architecture
 
-Four screens, one flat-level nav, no nesting:
+Five screens, one flat-level nav, no nesting:
 
 | Route | Screen | Is the home screen? |
 | --- | --- | --- |
@@ -29,12 +29,13 @@ Four screens, one flat-level nav, no nesting:
 | `/report` | Auto Report | No — reached via nav |
 | `/process-health` | Process Health | No — reached via nav |
 | `/doc-linker` | Doc Linker | No — reached via nav |
+| `/azure-import` | Azure Import | No — reached via nav, and also promoted via a callout on the Ops Hub home screen (§4) |
 | `/report/:sprintId` | (redirects to `/report`) | Deep link target from the Teams message; this POC only ever has one sprint in play |
 
 Current nav (`components/Nav.tsx`) is a static top bar: product name +
-4 text links, active link visually distinguished. Nothing about this
+5 text links, active link visually distinguished. Nothing about this
 structure is meant to be preserved rigidly (a sidebar, tabs, a command
-palette are all fine replacements) — what must be preserved is: **all 4
+palette are all fine replacements) — what must be preserved is: **all 5
 destinations reachable from anywhere in 1 click, and the current screen is
 always visually obvious.**
 
@@ -98,8 +99,11 @@ they stop being the bottleneck (realizes UJ-2 in the PRD).
   when "Draft"/"Draft reminder" is clicked)
 
 **Layout today:** a header (title + a numeric "overdue-approval threshold"
-input, default 3 days) above a 4-column grid (1 column on mobile, 2 on
-tablet, 4 on desktop). Each column is one group:
+input, default 3 days), then an `InfoBanner` callout (`components/InfoBanner.tsx`)
+introducing Azure Import with a link to `/azure-import` (spec.md Epic 6,
+Pillar 5) — the one static, non-dismissible piece of promotional copy on
+this screen — above a 4-column grid (1 column on mobile, 2 on tablet, 4 on
+desktop). Each column is one group:
 
 | Group | Filter | Items shown |
 | --- | --- | --- |
@@ -274,15 +278,93 @@ needed" call for this feature):
 A ticket has at most one match (its single best-scoring doc); a doc can
 match multiple tickets and is only "orphaned" if it matches none.
 
-## 8. Shared components inventory
+## 8. Screen: Azure Import (`/azure-import`)
+
+**Purpose:** an on-demand performance snapshot for teams whose board of
+record is Azure Boards instead of Jira — paste/upload one export, get 3
+fixed report templates back (spec.md Pillar 5 / Epic 6). Unlike every other
+screen, there is no background data source: nothing loads on mount, and
+nothing is remembered between visits.
+
+**Data sources:**
+- `GET /api/azure-import` → `{ format: 'csv', raw: string }` — backs the
+  "Load sample data" button only (reads the bundled
+  `data/azure-sprint-sample.csv`), not used on page load.
+- `POST /api/azure-import` `{ format: 'json' | 'csv', raw: string,
+  staleDays?: number }` → `AzureImportReport` — triggered by "Analyze".
+
+**Layout today, top to bottom:**
+1. Header: title + a one-line disclosure that nothing is sent to Azure
+   DevOps.
+2. An input card: a CSV/JSON format toggle, an "Upload file…" button
+   (reads the picked file into the textarea via `FileReader`, and infers
+   format from the file extension), a "Load sample data" button, a "Stale
+   after {n} days" numeric input (default `DEFAULT_STALE_DAYS`, same
+   pattern as Ops Hub's overdue-approval input), a multi-line textarea for
+   the pasted export, and an "Analyze" button (disabled while empty or
+   in flight).
+3. A red error banner on a failed/invalid import (same non-crashing
+   pattern as `/report`'s sprint-validation banner).
+4. After a successful analysis: the derived sprint/iteration label, an
+   amber "data-quality notes" box listing any `warnings` (only shown when
+   non-empty — e.g. "Story Points column not found — defaulted to 0"),
+   then 3 report-card sections in a fixed order:
+   - **Velocity & Completion** — 4 stat tiles (velocity, completion rate,
+     total items, done items), a one-line headline, a by-work-item-type
+     table (total vs. done).
+   - **Quality & Bug Health** — 4 stat tiles (total/open/closed bugs, bug
+     ratio), a one-line headline, a severity breakdown table **or** a
+     "Severity column not found in this export" note when the export has
+     no severity data.
+   - **Workload & Aging** — a one-line headline, a by-assignee table
+     (total/done), and a stale-items list (id, title, days since update) —
+     empty when nothing is stale. This reuses the exact "stale after N
+     days" rule from Process Health §6, applied to Azure data.
+
+**States:**
+- Idle: empty textarea, "Analyze" disabled.
+- Loading sample: "Load sample data" reads "Loading…" and is disabled.
+- Analyzing: "Analyze" reads "Analyzing…" and is disabled.
+- Import error: a red banner with the server's plain-language message
+  (e.g. "Paste or upload an Azure Boards export first.", or "No row had a
+  recognizable Title — check the export and try again."); no report
+  sections render underneath it.
+- Populated: as described above. Re-running "Analyze" (e.g. after editing
+  the textarea or changing the stale-days threshold) replaces the whole
+  report.
+
+**Interactions:**
+1. **Format toggle (CSV/JSON)** — switches the expected paste format and
+   the textarea's placeholder text; does not clear what's already pasted.
+2. **Upload file…** — opens a native file picker (`.csv`/`.json`); on
+   selection, reads the file's text into the textarea and sets the format
+   toggle from the file extension.
+3. **Load sample data** — fetches the bundled sample CSV and fills the
+   textarea, so the screen is demoable with zero setup.
+4. **Stale after (n) days** — only takes effect on the next "Analyze"
+   (unlike Process Health's threshold, which re-queries live — this screen
+   has no live data source to re-query against).
+5. **Analyze** — posts the current format/raw/staleDays; success replaces
+   the report sections, failure shows the error banner and leaves any
+   previous report cleared.
+
+**Data-quality notes vs. hard errors:** this screen is deliberately more
+lenient than sample-fixture screens elsewhere in the app — a merely
+incomplete export (missing an optional column, an unrecognized work-item
+type/state) still produces a full report with the gap surfaced as a
+warning, never a blocked/broken page. Only unusable input (empty paste,
+no parseable rows, no row with a Title) is a hard error.
+
+## 9. Shared components inventory
 
 | Component | File | Used on |
 | --- | --- | --- |
 | `Nav` | `components/Nav.tsx` | Every screen (in the root layout) |
 | `ToastProvider` / `useToast` | `components/ToastProvider.tsx` | Every screen (error/success notifications) |
 | `SeverityBadge`, `ConfidenceBadge` | `components/Badge.tsx` | Process Health, Doc Linker |
-| `StatTile` | `components/StatTile.tsx` | Report |
+| `StatTile` | `components/StatTile.tsx` | Report, Azure Import |
 | `OpsItemCard` | `components/OpsItemCard.tsx` | Ops Hub (all 4 groups) |
+| `InfoBanner` | `components/InfoBanner.tsx` | Ops Hub (Azure Import callout) |
 
 A redesign is free to restructure these however it wants; the table above is
 just so nothing gets missed. Toasts specifically: currently a fixed
@@ -290,7 +372,7 @@ bottom-right stack, auto-dismissing after 5 seconds, 3 kinds (success = green,
 error = red, info = gray) — keep at minimum a success/error/info distinction
 and non-blocking positioning.
 
-## 9. Data contracts (for whoever wires up the redesigned UI)
+## 10. Data contracts (for whoever wires up the redesigned UI)
 
 Full types live in `lib/types.ts`. Key shapes referenced above:
 
@@ -325,15 +407,28 @@ interface ReportResult {
 }
 interface DelegationSuggestion { itemId: string; label: 'should_do_myself'|'can_delegate'; reason: string; }
 interface DraftResult { itemId: string; subject: string; body: string; generatedByLLM: boolean; }
+
+// Azure Import (Pillar 5) — POST /api/azure-import request/response
+interface AzureImportRequest { format: 'json' | 'csv'; raw: string; staleDays?: number; }
+interface AzureImportReport {
+  sprintLabel: string;
+  velocity: { totalItems: number; doneItems: number; completionRate: number; velocity: number;
+    byType: Record<'story'|'task'|'bug'|'other', { total: number; done: number }>; headline: string; };
+  quality: { totalBugs: number; openBugs: number; closedBugs: number; bugRatio: number;
+    hasSeverityData: boolean; bySeverity: { severity: string; count: number }[]; headline: string; };
+  workload: { byAssignee: { assignee: string; total: number; done: number }[]; staleDays: number;
+    staleItems: { id: string; title: string; daysSinceUpdate: number }[]; headline: string; };
+  warnings: string[];
+}
 ```
 
 Every API error (any endpoint) is `{ error: string }` with a 4xx/5xx status —
 render it as plain text, there is no structured error code to branch on in
 this POC.
 
-## 10. Responsive & accessibility notes to preserve
+## 11. Responsive & accessibility notes to preserve
 
-- All 4 screens already work down to ~400px width (Ops Hub's grid collapses
+- All 5 screens already work down to ~400px width (Ops Hub's grid collapses
   to 1 column; tables scroll if needed rather than breaking layout).
 - Every interactive control is a real `<button>`/`<input>`/`<select>`/`<a>` —
   no `<div onClick>` — keep it that way for keyboard/screen-reader access.
@@ -344,10 +439,11 @@ this POC.
   redesign (e.g. a modal instead of inline expansion) must keep drafts
   genuinely editable before copying, not read-only preview text.
 
-## 11. Out of scope for this document
+## 12. Out of scope for this document
 
 This spec does not propose colors, type scales, spacing, or component
 visuals — that is the redesign's job. It also doesn't cover functionality
 that doesn't exist yet (multi-project support, auth, persisted delegation
-state, live Jira/Confluence/Teams connectors) — see the Architecture Spine's
-"Deferred" section for what's intentionally out of scope for this POC stage.
+state, live Jira/Confluence/Teams/Azure DevOps connectors, multi-sprint
+trend/burndown from Azure data) — see the Architecture Spine's "Deferred"
+section for what's intentionally out of scope for this POC stage.

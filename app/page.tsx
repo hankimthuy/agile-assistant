@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { InfoBanner } from '@/components/InfoBanner';
 import { OpsItemCard } from '@/components/OpsItemCard';
 import { useToast } from '@/components/ToastProvider';
 import { DEFAULT_APPROVAL_WARN_DAYS } from '@/lib/config';
@@ -68,6 +69,13 @@ export default function OpsHubPage() {
           days
         </label>
       </div>
+
+      <InfoBanner
+        title="New: Azure Performance Import."
+        body="Paste or upload a JSON/CSV export from an Azure Boards query for your sprint to get an instant Velocity, Quality, and Workload snapshot — no live Azure DevOps connection required."
+        linkHref="/azure-import"
+        linkLabel="Try Azure Import →"
+      />
 
       {error && (
         <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
