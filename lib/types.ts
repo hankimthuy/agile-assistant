@@ -195,4 +195,8 @@ export interface PerformanceImportReport {
   quality: QualityReport;
   workload: WorkloadReport;
   warnings: string[];
+  // The normalized rows the report above was computed from — already
+  // parsed by lib/data/performance-import.ts, just passed through so the
+  // UI can show the underlying data instead of only the aggregates.
+  workItems: ImportedWorkItem[];
 }

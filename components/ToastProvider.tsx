@@ -17,9 +17,15 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 const KIND_STYLES: Record<ToastKind, string> = {
-  success: 'bg-green-600',
-  error: 'bg-red-600',
-  info: 'bg-gray-800',
+  success: 'bg-accent-900 text-bg',
+  error: 'bg-accent-900 text-bg',
+  info: 'border border-line bg-surface text-ink',
+};
+
+const KIND_ICON: Record<ToastKind, string> = {
+  success: 'M20 6 9 17l-5-5',
+  error: 'M12 9v4M12 17h.01',
+  info: 'M12 8v4M12 16h.01',
 };
 
 let nextId = 1;
@@ -42,8 +48,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`${KIND_STYLES[t.kind]} text-white text-sm px-4 py-2 rounded shadow-lg max-w-sm`}
+            className={`flex max-w-sm items-center gap-3 rounded px-4 py-2.5 text-sm shadow-lg ${KIND_STYLES[t.kind]}`}
           >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0">
+              {t.kind === 'success' ? <path d={KIND_ICON[t.kind]} /> : <circle cx="12" cy="12" r="9" />}
+              {t.kind !== 'success' && <path d={KIND_ICON[t.kind]} />}
+            </svg>
             {t.text}
           </div>
         ))}
