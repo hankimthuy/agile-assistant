@@ -102,5 +102,6 @@ export function computePerformanceImportReport(
     quality: computeQualityReport(data.workItems),
     workload: computeWorkloadReport(data.workItems, staleDays),
     warnings: data.warnings,
+    workItems: data.workItems,
   };
 }

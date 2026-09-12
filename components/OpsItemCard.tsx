@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { daysSince } from '@/lib/config';
+import { Panel } from './Panel';
 import { useToast } from './ToastProvider';
 import type { DelegationSuggestion, DraftResult, OpsItem } from '@/lib/types';
 
@@ -11,13 +12,12 @@ const SOURCE_LABELS: Record<OpsItem['source'], string> = {
   email: 'Email',
 };
 
-function SourceBadge({ source }: { source: OpsItem['source'] }) {
-  return (
-    <span className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">
-      {SOURCE_LABELS[source]}
-    </span>
-  );
-}
+const TYPE_LABELS: Record<OpsItem['type'], string> = {
+  task: 'My work',
+  delegatable: 'Delegatable',
+  pending_approval: 'Awaiting approval',
+  needs_email: 'Needs reply',
+};
 
 interface Props {
   item: OpsItem;
@@ -25,9 +25,10 @@ interface Props {
   approvalWarnDays: number;
   delegated: boolean;
   onDelegate: () => void;
+  wide?: boolean;
 }
 
-export function OpsItemCard({ item, suggestion, approvalWarnDays, delegated, onDelegate }: Props) {
+export function OpsItemCard({ item, suggestion, approvalWarnDays, delegated, onDelegate, wide }: Props) {
   const { showToast } = useToast();
   const [draft, setDraft] = useState<DraftResult | null>(null);
   const [draftLoading, setDraftLoading] = useState(false);
@@ -38,9 +39,9 @@ export function OpsItemCard({ item, suggestion, approvalWarnDays, delegated, onD
   const daysOpen = referenceDate ? daysSince(referenceDate) : undefined;
   const waitedTooLong = item.type === 'pending_approval' && (daysOpen ?? 0) > approvalWarnDays;
 
-  async function requestDraft() {
+  async function requestDraft(force = false) {
     setShowDraft(true);
-    if (draft) return; // already fetched — user is just re-opening
+    if (draft && !force) return; // already fetched — user is just re-opening
     setDraftLoading(true);
     try {
       const res = await fetch('/api/draft', {
@@ -71,90 +72,89 @@ export function OpsItemCard({ item, suggestion, approvalWarnDays, delegated, onD
   }
 
   return (
-    <div className="rounded-lg border bg-white p-3 space-y-2">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium text-gray-900">{item.title}</p>
-        <SourceBadge source={item.source} />
+    <Panel
+      className={`flex flex-col gap-2 p-3.5 ${wide ? 'md:col-span-2' : ''}`}
+      style={waitedTooLong ? { background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)' } : undefined}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        {waitedTooLong ? (
+          <span className="tag tag-strong">Overdue {daysOpen}d</span>
+        ) : (
+          <span className="tag tag-neutral">{TYPE_LABELS[item.type]}</span>
+        )}
+        <span className="lbl">
+          {SOURCE_LABELS[item.source]}
+          {daysOpen !== undefined && !waitedTooLong && ` · ${item.type === 'pending_approval' ? 'waiting' : 'open'} ${daysOpen}d`}
+        </span>
+        {showDraft && draft && <span className="lbl ml-auto">Draft open</span>}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-        {daysOpen !== undefined && (
-          <span className={waitedTooLong ? 'font-semibold text-red-700' : ''}>
-            {item.type === 'pending_approval' ? `Waiting ${daysOpen}d` : `Open ${daysOpen}d`}
-          </span>
-        )}
-        {item.type === 'pending_approval' && item.waitingOn && <span>· Needs {item.waitingOn}</span>}
-        {waitedTooLong && (
-          <span className="rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-800">Overdue</span>
-        )}
-      </div>
+      <div className="font-heading text-lg font-semibold leading-snug">{item.title}</div>
+
+      {item.type === 'pending_approval' && item.waitingOn && (
+        <div className="text-xs text-muted">Needs {item.waitingOn}</div>
+      )}
 
       {item.type === 'delegatable' && suggestion && (
-        <div className="rounded bg-gray-50 p-2 text-xs text-gray-700">
-          <span
-            className={`font-semibold ${suggestion.label === 'can_delegate' ? 'text-green-700' : 'text-gray-700'}`}
-          >
+        <div className="blueprint bg-surface p-2.5 text-xs">
+          <span className={suggestion.label === 'can_delegate' ? 'font-semibold text-accent-800' : 'font-semibold'}>
             {suggestion.label === 'can_delegate' ? 'Can delegate' : 'Should do myself'}
-          </span>
-          <span> — {suggestion.reason}</span>
+          </span>{' '}
+          <span className="text-muted">— {suggestion.reason}</span>
         </div>
       )}
 
-      <div className="flex gap-2">
+      {item.type === 'task' && (
+        <div className="text-xs text-muted">
+          {item.candidateAssignees.length > 0
+            ? `Candidates: ${item.candidateAssignees.join(', ')}`
+            : 'Stays with you — no candidate assignee identified.'}
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 pt-0.5">
         {item.type === 'delegatable' && (
-          <button
-            onClick={onDelegate}
-            disabled={delegated}
-            className={`rounded px-2.5 py-1 text-xs font-medium ${
-              delegated ? 'bg-gray-100 text-gray-400' : 'bg-gray-900 text-white hover:bg-gray-700'
-            }`}
-          >
+          <button onClick={onDelegate} disabled={delegated} className="btn btn-primary">
             {delegated ? 'Delegated' : 'Delegate'}
           </button>
         )}
         {(item.type === 'needs_email' || item.type === 'pending_approval') && !showDraft && (
-          <button
-            onClick={requestDraft}
-            className="rounded bg-gray-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-gray-700"
-          >
+          <button onClick={() => requestDraft()} className="btn btn-primary">
             {item.type === 'pending_approval' ? 'Draft reminder' : 'Draft'}
           </button>
         )}
       </div>
 
       {showDraft && (
-        <div className="space-y-2 rounded border bg-gray-50 p-2">
+        <div className="blueprint flex flex-col gap-2.5 bg-surface p-3">
           {draftLoading || !draft ? (
-            <p className="text-xs text-gray-500">Generating draft…</p>
+            <p className="flex items-center gap-2 text-xs text-muted">
+              <span className="spinner" /> Generating draft…
+            </p>
           ) : (
             <>
-              <input
-                readOnly
-                value={draft.subject}
-                className="w-full rounded border bg-white px-2 py-1 text-xs text-gray-700"
-              />
+              <input readOnly value={draft.subject} className="input min-h-[32px] text-xs" />
               <textarea
                 value={editedBody}
                 onChange={(e) => setEditedBody(e.target.value)}
                 rows={5}
-                className="w-full rounded border bg-white px-2 py-1 text-xs text-gray-900"
+                className="input text-xs leading-relaxed"
               />
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={copyDraft}
-                  className="rounded bg-gray-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-gray-700"
-                >
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button onClick={copyDraft} className="btn btn-primary">
                   Copy
                 </button>
-                <span className="text-[11px] text-gray-400">
-                  {draft.generatedByLLM ? 'Generated by Gemini' : 'Generated by template (no API key set)'} — never
-                  sent automatically
+                <button onClick={() => requestDraft(true)} className="btn btn-secondary">
+                  Regenerate
+                </button>
+                <span className="ml-auto text-[11px] text-muted">
+                  {draft.generatedByLLM ? 'Generated by Gemini' : 'Drafted from template'} — never sent automatically
                 </span>
               </div>
             </>
           )}
         </div>
       )}
-    </div>
+    </Panel>
   );
 }

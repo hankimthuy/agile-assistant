@@ -1,7 +1,21 @@
 import type { Metadata } from 'next';
+import { Barlow, Barlow_Condensed } from 'next/font/google';
 import './globals.css';
-import { Nav } from '@/components/Nav';
 import { ToastProvider } from '@/components/ToastProvider';
+
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-barlow',
+  display: 'swap',
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-barlow-condensed',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'AgileCopilot',
@@ -10,12 +24,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable}`}>
       <body>
-        <ToastProvider>
-          <Nav />
-          <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );
