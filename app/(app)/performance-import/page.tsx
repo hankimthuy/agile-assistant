@@ -8,9 +8,77 @@ import { DEFAULT_STALE_DAYS } from '@/lib/config';
 import type { ImportFormat } from '@/lib/data/performance-import';
 import type { PerformanceImportReport } from '@/lib/types';
 
-const FORMAT_CARDS: { format: ImportFormat; title: string; columns: string }[] = [
-  { format: 'csv', title: 'CSV / TSV', columns: 'Jira, Azure Boards, Trello, or Excel/Sheets — Key · Type · Status · Points · Assignee · Updated' },
-  { format: 'json', title: 'JSON', columns: 'An array of work items, or { workItems / items / value: [...] }' },
+// Four starting-point templates (matches the design mockup's template
+// picker). Each `sample` is a small, realistic export in that tool's own
+// column vocabulary — every column name below is one lib/data/performance-
+// import.ts's ALIASES table already recognizes, so picking a template and
+// hitting Analyze runs the same real, tool-agnostic parser/report
+// functions every other path on this page uses. Azure Boards has no
+// hardcoded sample here — it loads the bundled fixture
+// (data/performance-import-sample.csv) via the existing GET
+// /api/performance-import route, since that fixture is already in Azure's
+// own export shape.
+type Template = {
+  id: string;
+  format: ImportFormat;
+  title: string;
+  columns: string;
+  sample: string | null;
+};
+
+const TEMPLATES: Template[] = [
+  {
+    id: 'jira',
+    format: 'csv',
+    title: 'Jira CSV',
+    columns: 'Issue key · Issue Type · Status · Story point estimate · Assignee · Updated',
+    sample: [
+      'Issue key,Issue Type,Summary,Status,Story point estimate,Assignee,Sprint,Updated',
+      'JIRA-201,Story,Set up SSO login,Done,5,Minh Anh,Sprint 24,2026-09-09',
+      'JIRA-202,Task,Write onboarding runbook,In Progress,3,Huy Tran,Sprint 24,2026-08-30',
+      'JIRA-203,Bug,Fix pagination off-by-one,Done,2,Lan Pham,Sprint 24,2026-09-10',
+      'JIRA-204,Bug,Investigate flaky e2e test,To Do,3,Duc Nguyen,Sprint 24,2026-09-05',
+      'JIRA-205,Task,Update API rate-limit docs,Done,1,Minh Anh,Sprint 24,2026-09-08',
+    ].join('\n'),
+  },
+  {
+    id: 'azure',
+    format: 'csv',
+    title: 'Azure Boards CSV',
+    columns: 'ID · Work Item Type · State · Story Points · Assigned To · Changed Date',
+    sample: null,
+  },
+  {
+    id: 'trello',
+    format: 'json',
+    title: 'Trello JSON',
+    columns: 'Card id/name · type (label) · status (list) · points · assignee · sprint',
+    sample: JSON.stringify(
+      [
+        { id: 'TRELLO-31', name: 'Design empty-state illustration', type: 'Task', status: 'Done', points: 2, assignee: 'Lan Pham', sprint: 'Sprint 24' },
+        { id: 'TRELLO-32', name: 'Wire up Trello board sync spike', type: 'Task', status: 'In Progress', points: 3, assignee: 'Huy Tran', sprint: 'Sprint 24' },
+        { id: 'TRELLO-33', name: 'Card: broken image link on release notes', type: 'Bug', status: 'Done', points: 1, assignee: 'Duc Nguyen', sprint: 'Sprint 24' },
+        { id: 'TRELLO-34', name: 'Draft customer changelog card template', type: 'Task', status: 'To Do', points: 2, assignee: 'Minh Anh', sprint: 'Sprint 24' },
+        { id: 'TRELLO-35', name: 'Story: quick filters on the board', type: 'Story', status: 'In Progress', points: 5, assignee: 'Lan Pham', sprint: 'Sprint 24' },
+      ],
+      null,
+      2
+    ),
+  },
+  {
+    id: 'excel',
+    format: 'csv',
+    title: 'Excel / Sheets',
+    columns: 'Key · Title · Type · Status · Points · Owner · Updated (tab-separated paste)',
+    sample: [
+      'Key\tTitle\tType\tStatus\tPoints\tOwner\tUpdated',
+      'XL-1\tRebuild pricing sheet macro\tTask\tDone\t3\tMinh Anh\t2026-09-09',
+      'XL-2\tAudit shared drive permissions\tTask\tIn Progress\t2\tHuy Tran\t2026-08-30',
+      'XL-3\tFix rounding error in cost calc\tBug\tDone\t1\tLan Pham\t2026-09-10',
+      'XL-4\tBuild quarterly OKR tracker\tStory\tTo Do\t5\tDuc Nguyen\t2026-09-05',
+      'XL-5\tClean up stale shared filters\tTask\tDone\t2\tMinh Anh\t2026-09-08',
+    ].join('\n'),
+  },
 ];
 
 export default function PerformanceImportPage() {
@@ -19,13 +87,26 @@ export default function PerformanceImportPage() {
 
   const [format, setFormat] = useState<ImportFormat>('csv');
   const [raw, setRaw] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [staleDays, setStaleDays] = useState(DEFAULT_STALE_DAYS);
   const [report, setReport] = useState<PerformanceImportReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
 
-  async function loadSample() {
+  async function selectTemplate(template: Template) {
+    setSelectedTemplate(template.id);
+    setFormat(template.format);
+    setReport(null);
+    setError(null);
+
+    if (template.sample !== null) {
+      setRaw(template.sample);
+      return;
+    }
+
+    // Azure Boards: the bundled fixture is already in Azure's export shape,
+    // so pull it from the real sample endpoint instead of hardcoding a copy.
     setLoadingSample(true);
     try {
       const res = await fetch('/api/performance-import');
@@ -33,7 +114,6 @@ export default function PerformanceImportPage() {
       if (!res.ok) throw new Error(data.error ?? 'Failed to load sample data');
       setFormat(data.format);
       setRaw(data.raw);
-      showToast('Sample export loaded — click Analyze', 'success');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to load sample data', 'error');
     } finally {
@@ -44,6 +124,7 @@ export default function PerformanceImportPage() {
   function handleFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
+      setSelectedTemplate(null);
       setRaw(String(reader.result ?? ''));
       if (file.name.toLowerCase().endsWith('.json')) setFormat('json');
       else setFormat('csv');
@@ -92,20 +173,20 @@ export default function PerformanceImportPage() {
       </p>
 
       <div className="flex flex-col gap-3">
-        <div className="eyebrow">Start from a format — or paste your own export</div>
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-          {FORMAT_CARDS.map((f) => (
+        <div className="eyebrow">Start from a template — or paste your own export below</div>
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {TEMPLATES.map((t) => (
             <Panel
-              key={f.format}
+              key={t.id}
               className="flex cursor-pointer flex-col gap-1.5 p-3.5"
-              style={format === f.format ? { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)' } : undefined}
-              onClick={() => setFormat(f.format)}
+              style={selectedTemplate === t.id ? { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)' } : undefined}
+              onClick={() => selectTemplate(t)}
             >
               <div className="flex items-center gap-2">
-                <span className="font-heading text-base font-semibold">{f.title}</span>
-                {format === f.format && <span className="tag tag-strong ml-auto">In use</span>}
+                <span className="font-heading text-base font-semibold">{t.title}</span>
+                {selectedTemplate === t.id && <span className="tag tag-strong ml-auto shrink-0">In use</span>}
               </div>
-              <div className="text-xs text-muted">{f.columns}</div>
+              <div className="text-xs text-muted">{t.columns}</div>
             </Panel>
           ))}
         </div>
@@ -127,9 +208,7 @@ export default function PerformanceImportPage() {
               e.target.value = '';
             }}
           />
-          <button onClick={loadSample} disabled={loadingSample} className="btn btn-secondary">
-            {loadingSample ? 'Loading…' : 'Load sample data'}
-          </button>
+          {loadingSample && <span className="flex items-center gap-2 text-xs text-muted"><span className="spinner" /> Loading sample…</span>}
           <label className="ml-auto flex items-center gap-2 text-sm">
             Stale after
             <input
@@ -145,7 +224,10 @@ export default function PerformanceImportPage() {
 
         <textarea
           value={raw}
-          onChange={(e) => setRaw(e.target.value)}
+          onChange={(e) => {
+            setSelectedTemplate(null);
+            setRaw(e.target.value);
+          }}
           placeholder={
             format === 'csv'
               ? 'Paste CSV/TSV rows here — e.g. ID, Title/Summary, Type, State/Status, Story Points/Estimate, Assignee/Owner, Sprint, ...'
