@@ -48,30 +48,30 @@ export default async function LandingPage() {
         <span className="tag tag-outline self-start">
           For Scrum Masters &amp; Product Owners · no live tool connection required
         </span>
-        <h1 className="max-w-[24ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-          Everyone&apos;s sprint update — written automatically, no status meeting needed.
+        <h1 className="max-w-[22ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
+          Stop being the bottleneck on your own team.
         </h1>
         <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
-          AgileCopilot reads your sprint export and your inbox, then turns it into what a Scrum Master needs to
-          act on today — overdue approvals, ticket hygiene, who could take what — and what a Product Owner needs
-          to know this sprint, without asking anyone. It drafts. You decide.
+          Every task, approval and unanswered message — from Jira, Teams and email — lands in one inbox, sorted
+          into keep, delegate, chase or reply, with the replies already drafted. Paste any sprint export and get
+          the same clarity with zero integration. It drafts. You decide.
         </p>
         <div className="flex flex-wrap gap-3 pt-1">
-          <Link href="/performance-import" className="btn btn-primary px-5 py-2.5 text-[15px]">
-            Import a sprint export
+          <Link href="/ops-hub" className="btn btn-primary px-5 py-2.5 text-[15px]">
+            See your Ops Hub
           </Link>
-          <Link href="/report" className="btn btn-secondary px-5 py-2.5 text-[15px]">
-            See a sample report
+          <Link href="/performance-import" className="btn btn-secondary px-5 py-2.5 text-[15px]">
+            Import a sprint export
           </Link>
         </div>
         <div className="mt-2 flex flex-wrap gap-6 border-t border-line pt-3">
           <div>
-            <div className="metric-sm">CSV · TSV · JSON</div>
-            <div className="lbl mt-1">Any export</div>
+            <div className="metric-sm">Keep · Delegate · Chase · Reply</div>
+            <div className="lbl mt-1">Every item sorted for you</div>
           </div>
           <div>
-            <div className="metric-sm">Jira · Azure · Trello</div>
-            <div className="lbl mt-1">Where it comes from</div>
+            <div className="metric-sm">CSV · TSV · JSON</div>
+            <div className="lbl mt-1">Any export, zero integration</div>
           </div>
           <div>
             <div className="metric-sm">0</div>
