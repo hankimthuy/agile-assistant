@@ -266,7 +266,10 @@ export default async function LandingPage() {
       </section>
 
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-6 py-6 md:px-11">
-        <span className="font-heading text-base font-semibold">AGILECOPILOT</span>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-heading text-base font-semibold">AGILECOPILOT</span>
+          <span className="text-[11px] text-muted">Built by MVP Owner — Han Kim Thuy</span>
+        </div>
         <span className="text-[13px] text-muted">A proof of concept — no data leaves your browser without you sending it.</span>
       </footer>
     </div>
