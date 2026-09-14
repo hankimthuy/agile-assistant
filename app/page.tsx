@@ -48,8 +48,8 @@ export default async function LandingPage() {
         <span className="tag tag-outline self-start">
           For Scrum Masters &amp; Product Owners · no live tool connection required
         </span>
-        <h1 className="max-w-[22ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-          The sprint update everyone needs, without the meeting.
+        <h1 className="max-w-[24ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
+          Everyone&apos;s sprint update — written automatically, no status meeting needed.
         </h1>
         <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
           AgileCopilot reads your sprint export and your inbox, then turns it into what a Scrum Master needs to
