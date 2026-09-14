@@ -171,7 +171,8 @@ export default async function LandingPage() {
           </div>
           <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
             <div className="flex flex-wrap gap-1.5">
-              <span className="tag tag-accent self-start text-[10px]">For both</span>
+              <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+              <span className="tag tag-neutral self-start text-[10px]">For Product Owners</span>
               <span className="tag tag-accent self-start text-[10px]">AI-written</span>
             </div>
             <div className="eyebrow text-accent">03 — Report</div>
@@ -183,7 +184,8 @@ export default async function LandingPage() {
           </div>
           <div className="flex flex-col gap-2 p-6">
             <div className="flex flex-wrap gap-1.5">
-              <span className="tag tag-accent self-start text-[10px]">For both</span>
+              <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+              <span className="tag tag-neutral self-start text-[10px]">For Product Owners</span>
               <span className="tag tag-outline self-start text-[10px]">Rule-based</span>
             </div>
             <div className="eyebrow text-accent">04 — Audit</div>
