@@ -20,9 +20,11 @@ The differentiation is the connective layer itself, not any single measurement: 
 
 ## Who This Serves
 
-**Primary — Scrum Master (operator).** Running 1–2 concurrent sprints, responsible for ceremonies, impediments, and Definition of Done. Success looks like: report creation time drops from hours to under 5 minutes, no more answering "where's document X" from memory, and nothing forgotten because it's scattered across tools.
+**Scrum Master (operator).** Running 1–2 concurrent sprints, responsible for ceremonies, impediments, and Definition of Done. Success looks like: report creation time drops from hours to under 5 minutes, no more answering "where's document X" from memory, and nothing forgotten because it's scattered across tools.
 
-**Secondary — PM & PO (report consumer).** Doesn't operate the tool, only receives the output via Teams. Success looks like: reading one report is enough to understand the sprint's business value, with no follow-up meeting needed to explain it.
+**Product Owner (operator).** Owns the backlog and the sprint's outcome — prioritization, acceptance criteria, stakeholder value. Opens AgileCopilot directly for Auto Report, Performance Import, and Process Health, rather than only receiving the report via Teams. Success looks like: reading one report is enough to understand the sprint's business value with no follow-up meeting, and backlog hygiene gaps (missing acceptance criteria, stale tickets) surface before sprint review, not after.
+
+Both are co-equal operators: the Scrum Master's own workspace is Ops Hub and Doc Linker; Auto Report, Process Health, and Performance Import are shared ground both personas use directly.
 
 ## Success Criteria
 

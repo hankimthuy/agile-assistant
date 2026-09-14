@@ -46,14 +46,16 @@ export default async function LandingPage() {
 
       <section className="grid grid-cols-1 items-start gap-8 px-6 py-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:px-11 md:py-14">
         <div className="flex flex-col gap-5">
-          <span className="tag tag-outline self-start">For scrum masters · no live tool connection required</span>
+          <span className="tag tag-outline self-start">
+            For Scrum Masters &amp; Product Owners · no live tool connection required
+          </span>
           <h1 className="text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-            The admin half of your job, drafted for you.
+            The sprint update everyone needs, without the meeting.
           </h1>
           <p className="max-w-[52ch] text-base leading-relaxed text-muted md:text-lg">
-            AgileCopilot reads your sprint export and your inbox, then tells you what needs you today — which
-            approvals are overdue, which tickets break process hygiene, which work someone else could take. It
-            drafts. You decide.
+            AgileCopilot reads your sprint export and your inbox, then turns it into what a Scrum Master needs to
+            act on today — overdue approvals, ticket hygiene, who could take what — and what a Product Owner needs
+            to know this sprint, without asking anyone. It drafts. You decide.
           </p>
           <div className="flex flex-wrap gap-3 pt-1">
             <Link href="/performance-import" className="btn btn-primary px-5 py-2.5 text-[15px]">
@@ -81,14 +83,15 @@ export default async function LandingPage() {
 
         <Panel className="flex h-[280px] items-center justify-center bg-surface text-center md:h-[420px]" style={{ overflow: 'visible' }}>
           <div className="max-w-[26ch] px-6 text-sm text-muted">
-            Hero photograph — a scrum master at a wall of cards, or an empty planning room.
+            Hero photograph — a sprint board mid-review, or an empty planning room.
           </div>
         </Panel>
       </section>
 
       <section id="how-it-works" className="px-6 pb-12 md:px-11">
-        <Panel className="grid grid-cols-1 md:grid-cols-3">
-          <div className="flex flex-col gap-2 border-b border-line p-6 md:border-b-0 md:border-r">
+        <Panel className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
+            <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
             <div className="eyebrow text-accent">01 — Triage</div>
             <h3 className="text-xl">One inbox, four verdicts</h3>
             <p className="text-sm text-muted">
@@ -96,16 +99,26 @@ export default async function LandingPage() {
               reply.
             </p>
           </div>
-          <div className="flex flex-col gap-2 border-b border-line p-6 md:border-b-0 md:border-r">
+          <div className="flex flex-col gap-2 border-b border-line p-6 lg:border-r lg:border-b-0">
+            <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
             <div className="eyebrow text-accent">02 — Draft</div>
-            <h3 className="text-xl">Reminders and reports, written</h3>
+            <h3 className="text-xl">Reminders and delegation, written</h3>
             <p className="text-sm text-muted">
-              Sprint narrative, nudge emails and delegation notes arrive pre-written, in your voice, never sent
-              automatically.
+              Nudge emails and delegation notes arrive pre-written, in your voice, never sent automatically.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
+            <span className="tag tag-accent self-start text-[10px]">For both</span>
+            <div className="eyebrow text-accent">03 — Report</div>
+            <h3 className="text-xl">Sprint narrative, ready to send</h3>
+            <p className="text-sm text-muted">
+              The Scrum Master gets it pre-written; the Product Owner gets the outcome — velocity, scope changes,
+              what shipped — without asking.
             </p>
           </div>
           <div className="flex flex-col gap-2 p-6">
-            <div className="eyebrow text-accent">03 — Audit</div>
+            <span className="tag tag-accent self-start text-[10px]">For both</span>
+            <div className="eyebrow text-accent">04 — Audit</div>
             <h3 className="text-xl">Process hygiene, measured</h3>
             <p className="text-sm text-muted">
               Missing acceptance criteria, undocumented tickets and stale work surface ranked by severity, not

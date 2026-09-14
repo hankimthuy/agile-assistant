@@ -24,23 +24,25 @@ Turn "reporting progress & keeping documentation tidy" from a Scrum Master's man
 
 ## 2. Personas
 
-### 2.1 Scrum Master — primary persona (operator)
+AgileCopilot serves two co-equal operator personas — a Scrum Master and a Product Owner both open the app directly, each for the parts of it that answer their own job. Neither is a passive report recipient; a Teams notification is a convenience on top of the app, not the primary way either persona uses it.
+
+### 2.1 Scrum Master — persona (operator)
 
 - **Who they are:** running 1–2 concurrent sprints, responsible for process operations (ceremonies, impediments, Definition of Done).
 - **Current pain points:** spends 2–3 hours at the end of every sprint gathering data from Jira/Confluence/Teams to write a report; constantly has to dig up "where is this document, who wrote it, is it still accurate"; on top of that, ends up holding onto work that could be delegated to someone else, forgets to reply to emails/messages that are waiting, and loses track of what's stuck waiting on someone's approval — they become the bottleneck for the whole team.
 - **Jobs-to-be-done:** "When the sprint ends, I want a trustworthy report with all the relevant documentation attached immediately, so I don't have to compile it by hand." + "I want one place that shows everything on my plate — what I have to do myself, what can be delegated, what's waiting on approval, which emails are unanswered — so I'm not the bottleneck myself."
 - **How they measure success:** report creation time drops from hours to under 5 minutes; no longer has to answer "where's document X" from memory; nothing gets forgotten because it's scattered across too many places.
-- **How they interact with the product:** the person who directly opens AgileCopilot, clicks "Generate Report," and handles process-health alerts.
+- **How they interact with the product:** the person who runs the day-to-day operation of the app — Ops Hub is their home screen, they click "Generate Report," and they handle process-health alerts.
 
-### 2.2 PM & PO — secondary persona (report consumer)
+### 2.2 Product Owner — persona (operator)
 
-- **Who they are:** don't operate the tool directly, only receive the output.
-- **Current pain points:** have to ask the Scrum Master to find out whether progress is actually creating business value; the reports they get are usually dry numbers with no context.
-- **Jobs-to-be-done:** "I want to know what business value the last sprint created, without having to ask anyone."
-- **How they measure success:** reading one report is enough to understand business value immediately, with no follow-up meeting needed to explain it.
-- **How they interact with the product:** receive an automatic report summary via Teams; can open the dashboard for more detail if needed.
+- **Who they are:** owns the backlog and the sprint's outcome — prioritization, acceptance criteria, stakeholder value — without running the ceremonies themselves.
+- **Current pain points:** has to ask the Scrum Master to find out whether progress is actually creating business value; the reports they get are usually dry numbers with no context; backlog hygiene problems (missing acceptance criteria, tickets going stale) usually only surface once they've already become a sprint-review surprise.
+- **Jobs-to-be-done:** "I want to know what business value the last sprint created, without having to ask anyone." + "I want to catch backlog hygiene issues on my own tickets before review, not after."
+- **How they measure success:** reading one report is enough to understand business value immediately, with no follow-up meeting needed to explain it; hygiene gaps in their backlog surface with time to fix them, not as a surprise.
+- **How they interact with the product:** opens AgileCopilot directly to read Auto Report and check Performance Import (velocity/quality trend) and Process Health (acceptance-criteria gaps); does not use Ops Hub's day-to-day triage — that stays the Scrum Master's tool. Also receives the automatic Auto Report summary via Teams as a convenience.
 
-> **Design note:** every functional requirement in Section 5 is labeled with the persona it serves — so features "for the operator" and features "for the viewer" don't get mixed up.
+> **Design note:** every functional requirement in Section 5 is labeled with the persona(s) it serves — "Scrum Master," "Product Owner," or both — so it's clear which modules are shared ground and which are one persona's own workspace.
 
 ---
 
@@ -48,13 +50,13 @@ Turn "reporting progress & keeping documentation tidy" from a Scrum Master's man
 
 The first three pillars operate at the **sprint/team level**; the fourth operates at the **individual Scrum Master level** — where they actually become the bottleneck. This fourth pillar should also be the screen that opens first ("one single place") rather than the report. The fifth pillar is deliberately **on-demand, not automatic** — it runs on data the Scrum Master already exported from a tool this POC doesn't integrate with live.
 
-1. **Ops Hub** *(home screen)* — gathers everything the Scrum Master needs to act on (their own tasks, delegatable work, messages/emails awaiting reply, pending approvals) into one single list, with delegation suggestions and draft-response generation.
-2. **Auto Report** — at the end of every sprint, the system automatically compiles tickets + documentation into a business-narrative report (not just dry numbers), sent to Teams for PM/PO.
-3. **Doc Linker** — automatically finds and attaches relevant Confluence documentation to each ticket/epic; flags "missing documentation" or "orphaned documentation" (no longer referenced by any ticket).
-4. **Process Health** — a table showing tickets that are missing acceptance criteria, missing documentation, or have been stale for too long.
-5. **Performance Import** — a Scrum Master pastes or uploads a sprint export — CSV, TSV (cells copied straight out of Excel/Google Sheets), or JSON — from *any* tool (Azure Boards, Jira, Trello, a hand-built spreadsheet, ...) as long as it has the right columns, and the app instantly generates 3 fixed performance templates (Velocity & Completion, Quality & Bug Health, Workload & Aging) — no live connection to any tool, no data stored between requests. The Workload & Aging template reuses the same "stale after N days" rule as Process Health, applied to imported data instead of Jira data.
+1. **Ops Hub** *(home screen — Scrum Master)* — gathers everything the Scrum Master needs to act on (their own tasks, delegatable work, messages/emails awaiting reply, pending approvals) into one single list, with delegation suggestions and draft-response generation.
+2. **Auto Report** *(Scrum Master &amp; Product Owner)* — at the end of every sprint, the system automatically compiles tickets + documentation into a business-narrative report (not just dry numbers); the Scrum Master gets it pre-written, the Product Owner reads it for the outcome, and it's also sent to Teams.
+3. **Doc Linker** *(Scrum Master)* — automatically finds and attaches relevant Confluence documentation to each ticket/epic; flags "missing documentation" or "orphaned documentation" (no longer referenced by any ticket).
+4. **Process Health** *(Scrum Master &amp; Product Owner)* — a table showing tickets that are missing acceptance criteria, missing documentation, or have been stale for too long; the Scrum Master audits process hygiene overall, the Product Owner uses it to catch acceptance-criteria gaps in their own backlog.
+5. **Performance Import** *(Scrum Master &amp; Product Owner)* — a user pastes or uploads a sprint export — CSV, TSV (cells copied straight out of Excel/Google Sheets), or JSON — from *any* tool (Azure Boards, Jira, Trello, a hand-built spreadsheet, ...) as long as it has the right columns, and the app instantly generates 3 fixed performance templates (Velocity & Completion, Quality & Bug Health, Workload & Aging) — no live connection to any tool, no data stored between requests. The Workload & Aging template reuses the same "stale after N days" rule as Process Health, applied to imported data instead of Jira data.
 
-> Process Health and Doc Linker detect bottlenecks at the **ticket** level; Ops Hub detects bottlenecks at the **human** level (the Scrum Master themself); Performance Import answers a different question from the same **ticket** level — "how did the sprint actually perform?" — for teams whose board of record isn't Jira, or who just have a spreadsheet export handy. The four automatic pillars complement each other without overlapping; the fifth is opt-in per use.
+> Process Health and Doc Linker detect bottlenecks at the **ticket** level; Ops Hub detects bottlenecks at the **human** level (the Scrum Master themself); Performance Import answers a different question from the same **ticket** level — "how did the sprint actually perform?" — for teams whose board of record isn't Jira, or who just have a spreadsheet export handy. The four automatic pillars complement each other without overlapping; the fifth is opt-in per use. Ops Hub and Doc Linker stay the Scrum Master's own workspace; Auto Report, Process Health, and Performance Import are the shared ground where the Product Owner works directly in the app too, not just as a report recipient.
 
 ---
 

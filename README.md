@@ -2,8 +2,9 @@
 
 A 7-day proof-of-concept: the connective layer over Jira, Confluence, and Teams
 that turns a Scrum Master's manual reporting/documentation upkeep into an
-automated background process, and gives them one place ("Ops Hub") to see
-everything on their plate.
+automated background process, gives them one place ("Ops Hub") to see
+everything on their plate, and gets the Product Owner the sprint outcome —
+velocity, quality, what shipped — without asking anyone.
 
 See [`spec.md`](./spec.md) for the full product spec, and
 [`UI-REDESIGN-SPEC.md`](./UI-REDESIGN-SPEC.md) for the functional/content spec
