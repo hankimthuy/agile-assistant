@@ -11,7 +11,9 @@ import { Panel } from '@/components/Panel';
 // Public marketing page (new — no direct predecessor in the POC). The
 // "inside the app" preview strip below pulls real numbers straight from
 // the same fixture data and functions every other screen uses
-// (lib/metrics.ts, lib/process-health.ts), rather than inventing figures.
+// (lib/metrics.ts, lib/process-health.ts), rather than inventing figures —
+// including the Scrum Master / Product Owner split, which is the same one
+// ops-inbox + sprint read shown two ways, not two separate data pulls.
 export default async function LandingPage() {
   const [sprintData, docsData, opsInboxData] = await Promise.all([
     loadSprintData(),
@@ -24,12 +26,34 @@ export default async function LandingPage() {
   const overdueApprovals = opsInboxData.items.filter(
     (i) => i.type === 'pending_approval' && i.sentDate && daysSince(i.sentDate) > DEFAULT_APPROVAL_WARN_DAYS
   ).length;
+  const opsCounts = {
+    myWork: opsInboxData.items.filter((i) => i.type === 'task').length,
+    delegatable: opsInboxData.items.filter((i) => i.type === 'delegatable').length,
+    awaitingApproval: opsInboxData.items.filter((i) => i.type === 'pending_approval').length,
+    needsReply: opsInboxData.items.filter((i) => i.type === 'needs_email').length,
+  };
+
+  const loopRows = [
+    {
+      before: '"What actually shipped, and did it matter?" — the Product Owner asks the Scrum Master directly.',
+      after: 'The Product Owner opens Report. Same velocity, same narrative the Scrum Master already trusts — no message sent.',
+    },
+    {
+      before: 'A missing acceptance criterion surfaces for the first time in sprint review, in front of stakeholders.',
+      after: "Process Health flags it the moment the sprint data refreshes — days before review, for both to see.",
+    },
+    {
+      before: 'The Scrum Master re-explains the same status: once to the Product Owner, again to a stakeholder, again at retro.',
+      after: 'One narrative, one place. Everyone reads the same sprint truth on their own schedule.',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-bg">
       <header className="flex flex-wrap items-center gap-6 border-b border-line px-6 py-4 md:px-11">
         <span className="font-heading text-lg font-semibold tracking-wide">AGILECOPILOT</span>
         <nav className="ml-3 hidden gap-5 text-sm sm:flex">
+          <a href="#the-loop">Why it&apos;s different</a>
           <a href="#how-it-works">How it works</a>
           <a href="#inside-the-app">Inside the app</a>
           <Link href="/overview">Docs</Link>
@@ -46,41 +70,75 @@ export default async function LandingPage() {
 
       <section className="flex flex-col items-start gap-5 px-6 py-10 md:px-11 md:py-14">
         <span className="tag tag-outline self-start">
-          For Scrum Masters &amp; Product Owners · no live tool connection required
+          For Scrum Masters &amp; Product Owners · one read, two views — never out of sync
         </span>
-        <h1 className="max-w-[22ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-          Stop being the bottleneck on your own team.
+        <h1 className="max-w-[26ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
+          The Product Owner stops asking. The Scrum Master stops repeating.
         </h1>
         <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
-          Every task, approval and unanswered message — from Jira, Teams and email — lands in one inbox, sorted
-          into keep, delegate, chase or reply, with the replies already drafted. Paste any sprint export and get
-          the same clarity with zero integration. It drafts. You decide.
+          AgileCopilot reads your sprint export and ops inbox once, then shows each side its own view of the same
+          sprint — the Scrum Master&apos;s daily triage, the Product Owner&apos;s outcome and hygiene checks — so
+          neither has to interrupt the other to find out what the numbers already say. It drafts. You decide.
         </p>
         <div className="flex flex-wrap gap-3 pt-1">
           <Link href="/ops-hub" className="btn btn-primary px-5 py-2.5 text-[15px]">
-            See your Ops Hub
+            See the Scrum Master&apos;s view
           </Link>
-          <Link href="/performance-import" className="btn btn-secondary px-5 py-2.5 text-[15px]">
-            Import a sprint export
+          <Link href="/report" className="btn btn-secondary px-5 py-2.5 text-[15px]">
+            See the Product Owner&apos;s view
           </Link>
         </div>
         <div className="mt-2 flex flex-wrap gap-6 border-t border-line pt-3">
           <div>
-            <div className="metric-sm">Keep · Delegate · Chase · Reply</div>
-            <div className="lbl mt-1">Every item sorted for you</div>
-          </div>
-          <div>
-            <div className="metric-sm">CSV · TSV · JSON</div>
-            <div className="lbl mt-1">Any export, zero integration</div>
+            <div className="metric-sm">1 read</div>
+            <div className="lbl mt-1">Feeds both views, always in sync</div>
           </div>
           <div>
             <div className="metric-sm">0</div>
-            <div className="lbl mt-1">Messages sent for you</div>
+            <div className="lbl mt-1">Status meetings to reconcile the numbers</div>
+          </div>
+          <div>
+            <div className="metric-sm">2 views</div>
+            <div className="lbl mt-1">Ops Hub &amp; Report, one source</div>
           </div>
         </div>
       </section>
 
+      <section id="the-loop" className="px-6 pb-12 md:px-11">
+        <div className="mb-3.5 max-w-[62ch]">
+          <div className="eyebrow text-accent">Why &quot;auto-generate a report&quot; isn&apos;t the point</div>
+          <h2 className="mt-1 text-2xl md:text-[28px]">
+            Today the Scrum Master is the Product Owner&apos;s status API. AgileCopilot replaces the API call with a
+            shared read.
+          </h2>
+        </div>
+        <Panel className="divide-y divide-line">
+          {loopRows.map((row) => (
+            <div
+              key={row.before}
+              className="grid grid-cols-1 gap-3 p-5 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6"
+            >
+              <div>
+                <div className="lbl text-muted">Today</div>
+                <p className="mt-1 text-sm">{row.before}</p>
+              </div>
+              <div className="hidden text-muted md:block" aria-hidden="true">
+                →
+              </div>
+              <div>
+                <div className="lbl text-accent">With AgileCopilot</div>
+                <p className="mt-1 text-sm">{row.after}</p>
+              </div>
+            </div>
+          ))}
+        </Panel>
+      </section>
+
       <section id="how-it-works" className="px-6 pb-12 md:px-11">
+        <div className="mb-3.5">
+          <div className="eyebrow">How it works</div>
+          <h2 className="mt-1 text-2xl md:text-[28px]">One data pull. Two views that never drift apart.</h2>
+        </div>
         <Panel className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
             <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
@@ -114,7 +172,7 @@ export default async function LandingPage() {
             <h3 className="text-xl">Process hygiene, measured</h3>
             <p className="text-sm text-muted">
               Missing acceptance criteria, undocumented tickets and stale work surface ranked by severity, not
-              alphabetically.
+              alphabetically — for whoever&apos;s backlog it is.
             </p>
           </div>
         </Panel>
@@ -125,34 +183,66 @@ export default async function LandingPage() {
           <div>
             <div className="eyebrow">Inside the app</div>
             <h2 className="mt-1 text-2xl md:text-[28px]">
-              {sprintData.sprint.name}, as AgileCopilot sees it
+              {sprintData.sprint.name}, read once — shown two ways
             </h2>
+            <p className="mt-1.5 max-w-[56ch] text-sm text-muted">
+              Same sprint export, same ops inbox. No separate pull for either side, so the numbers can&apos;t drift
+              apart.
+            </p>
           </div>
           <Link href="/overview" className="font-heading text-sm font-semibold">
             Take the tour →
           </Link>
         </div>
-        <Panel className="grid grid-cols-2 gap-4 bg-surface p-4 md:grid-cols-4">
-          <Panel className="bg-bg p-4">
-            <div className="metric">{metrics.velocity}</div>
-            <div className="lbl mt-1.5">Velocity (pts)</div>
-          </Panel>
-          <Panel className="bg-bg p-4">
-            <div className="metric">
-              {Math.round(metrics.completionRate * 100)}
-              <span className="text-lg">%</span>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Panel className="bg-surface p-4">
+            <span className="tag tag-neutral self-start text-[10px]">What the Scrum Master sees — Ops Hub</span>
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              <Panel className="bg-bg p-4">
+                <div className="metric">{opsCounts.myWork}</div>
+                <div className="lbl mt-1.5">My work</div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">{opsCounts.delegatable}</div>
+                <div className="lbl mt-1.5">Delegatable</div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">{opsCounts.awaitingApproval}</div>
+                <div className="lbl mt-1.5">
+                  Awaiting approval{overdueApprovals > 0 ? ` (${overdueApprovals} overdue)` : ''}
+                </div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">{opsCounts.needsReply}</div>
+                <div className="lbl mt-1.5">Needs reply</div>
+              </Panel>
             </div>
-            <div className="lbl mt-1.5">Completion</div>
           </Panel>
-          <Panel className="bg-bg p-4">
-            <div className="metric">{violations.length}</div>
-            <div className="lbl mt-1.5">Hygiene flags</div>
+          <Panel className="bg-surface p-4">
+            <span className="tag tag-accent self-start text-[10px]">What the Product Owner sees — Report</span>
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              <Panel className="bg-bg p-4">
+                <div className="metric">{metrics.velocity}</div>
+                <div className="lbl mt-1.5">Velocity (pts)</div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">
+                  {Math.round(metrics.completionRate * 100)}
+                  <span className="text-lg">%</span>
+                </div>
+                <div className="lbl mt-1.5">Completion</div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">{violations.length}</div>
+                <div className="lbl mt-1.5">Hygiene flags</div>
+              </Panel>
+              <Panel className="bg-bg p-4">
+                <div className="metric">{docLinks.missingDocTicketIds.length}</div>
+                <div className="lbl mt-1.5">Missing docs</div>
+              </Panel>
+            </div>
           </Panel>
-          <Panel className="bg-bg p-4">
-            <div className="metric">{overdueApprovals}</div>
-            <div className="lbl mt-1.5">Overdue approval{overdueApprovals === 1 ? '' : 's'}</div>
-          </Panel>
-        </Panel>
+        </div>
       </section>
 
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-6 py-6 md:px-11">
