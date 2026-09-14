@@ -73,12 +73,12 @@ export default async function LandingPage() {
           For Scrum Masters &amp; Product Owners · one read, two views — never out of sync
         </span>
         <h1 className="max-w-[26ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-          The Product Owner stops asking. The Scrum Master stops repeating.
+          The Product Owner reads the outcome. The Scrum Master writes it once.
         </h1>
         <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
-          AgileCopilot reads your sprint export and ops inbox once, then shows each side its own view of the same
-          sprint — the Scrum Master&apos;s daily triage, the Product Owner&apos;s outcome and hygiene checks — so
-          neither has to interrupt the other to find out what the numbers already say. It drafts. You decide.
+          AgileCopilot reads your sprint export and ops inbox once, then gives each side their own view of the same
+          sprint — the Scrum Master triages the day&apos;s work, the Product Owner reads the outcome and hygiene
+          checks straight from it, on their own schedule. It drafts. You decide.
         </p>
         <div className="flex flex-wrap gap-3 pt-1">
           <Link href="/ops-hub" className="btn btn-primary px-5 py-2.5 text-[15px]">
@@ -162,8 +162,8 @@ export default async function LandingPage() {
             <div className="eyebrow text-accent">03 — Report</div>
             <h3 className="text-xl">Sprint narrative, ready to send</h3>
             <p className="text-sm text-muted">
-              The Scrum Master gets it pre-written; the Product Owner gets the outcome — velocity, scope changes,
-              what shipped — without asking.
+              The Scrum Master gets it pre-written; the Product Owner reads the outcome straight from it — velocity,
+              scope changes, what shipped.
             </p>
           </div>
           <div className="flex flex-col gap-2 p-6">
