@@ -19,7 +19,7 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: 'AgileCopilot',
-  description: 'The connective layer over Jira, Confluence, and Teams for Scrum Masters.',
+  description: 'The connective layer over Jira and Confluence for Scrum Masters and Product Owners.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

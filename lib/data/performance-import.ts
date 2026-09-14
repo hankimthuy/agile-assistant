@@ -129,16 +129,41 @@ export function parseCsv(raw: string): Record<string, string>[] {
 
 type Row = Record<string, unknown>;
 
+// Real Azure Boards JSON fields like "System.AssignedTo" come back as an
+// object ({ displayName, uniqueName, ... }), not a plain string — stringify
+// that naively and you get the literal text "[object Object]" in the UI.
+// Jira CSV exports have the same shape problem for user-picker fields.
+function toDisplayString(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const name = obj.displayName ?? obj.name ?? obj.uniqueName ?? obj.fullName ?? obj.username;
+    if (typeof name === 'string') return name;
+  }
+  return undefined;
+}
+
+// Real Jira CSV exports often label a custom field as "Custom field (Story
+// point estimate)" rather than the bare field name — unwrap that wrapper so
+// it still matches the plain alias ("story point estimate") below, instead
+// of silently missing the column.
+const CUSTOM_FIELD_WRAPPER = /^custom field\s*\((.+)\)$/i;
+
 function getField(row: Row, aliases: string[]): string | undefined {
   const fields = (row.fields && typeof row.fields === 'object' ? (row.fields as Row) : undefined) ?? row;
   const lowerMap = new Map<string, unknown>();
-  for (const key of Object.keys(fields)) lowerMap.set(key.toLowerCase(), fields[key]);
+  for (const key of Object.keys(fields)) {
+    const lowerKey = key.toLowerCase();
+    lowerMap.set(lowerKey, fields[key]);
+    const wrapped = lowerKey.match(CUSTOM_FIELD_WRAPPER);
+    if (wrapped) lowerMap.set(wrapped[1].trim(), fields[key]);
+  }
 
   for (const alias of aliases) {
     const value = lowerMap.get(alias.toLowerCase());
-    if (value !== undefined && value !== null && value !== '') {
-      return typeof value === 'string' ? value : String(value);
-    }
+    const display = toDisplayString(value);
+    if (display !== undefined && display !== '') return display;
   }
   return undefined;
 }
@@ -171,7 +196,7 @@ function normalizeWorkItemType(raw: string | undefined, warnings: string[], id: 
   if (value.includes('bug')) return 'bug';
   if (value.includes('story') || value.includes('backlog item') || value.includes('feature')) return 'story';
   if (value.includes('task')) return 'task';
-  warnings.push(`Work item ${id}: unrecognized work item type "${raw ?? '(none)'}" — counted as "other".`);
+  warnings.push(`Work item ${id}: unrecognized work item type "${raw || '(none)'}" — counted as "other".`);
   return 'other';
 }
 
@@ -181,7 +206,7 @@ function normalizeState(raw: string | undefined, warnings: string[], id: string)
   if (value.includes('active') || value.includes('in progress') || value.includes('committed')) return 'in_progress';
   if (value.includes('new') || value.includes('to do') || value.includes('proposed') || value.includes('approved'))
     return 'to_do';
-  warnings.push(`Work item ${id}: unrecognized state "${raw ?? '(none)'}" — counted as "other".`);
+  warnings.push(`Work item ${id}: unrecognized state "${raw || '(none)'}" — counted as "other".`);
   return 'other';
 }
 
@@ -239,6 +264,50 @@ export function normalizeImportRows(rows: Row[], warnings: string[]): ImportedWo
   return items.filter((item): item is ImportedWorkItem => item !== null);
 }
 
+// A real Trello board export ("Print and Export" → "Export as JSON") is
+// shaped nothing like a flat work-item array: cards reference their list
+// (column) and members by id, in separate top-level arrays. Detect that
+// shape and flatten it into rows the generic alias-based pipeline above
+// already understands, instead of hard-rejecting it as "not an array of
+// work items." Trello cards have no native story-points field — that's
+// left unset here and picked up by the existing "missing story points"
+// warning, same as any other tool-agnostic export.
+interface TrelloCard {
+  id: string;
+  name: string;
+  idList?: string;
+  idMembers?: string[];
+  labels?: { name?: string }[];
+  closed?: boolean;
+  due?: string | null;
+  dateLastActivity?: string;
+}
+interface TrelloBoardExport {
+  cards?: TrelloCard[];
+  lists?: { id: string; name: string }[];
+  members?: { id: string; fullName?: string; username?: string }[];
+}
+
+function isTrelloBoardExport(obj: Row): boolean {
+  return Array.isArray(obj.cards) && Array.isArray(obj.lists);
+}
+
+function adaptTrelloBoardExport(board: TrelloBoardExport): Row[] {
+  const listNameById = new Map((board.lists ?? []).map((l) => [l.id, l.name]));
+  const memberNameById = new Map((board.members ?? []).map((m) => [m.id, m.fullName || m.username || m.id]));
+
+  return (board.cards ?? [])
+    .filter((card) => !card.closed)
+    .map((card) => ({
+      id: card.id,
+      title: card.name,
+      type: (card.labels ?? []).map((l) => l.name ?? '').find((n) => /bug|task|story/i.test(n)) ?? '',
+      state: (card.idList && listNameById.get(card.idList)) ?? '',
+      assignedTo: (card.idMembers ?? []).map((id) => memberNameById.get(id)).filter(Boolean).join(', '),
+      changedDate: card.dateLastActivity ?? '',
+    }));
+}
+
 function deriveSprintLabel(items: ImportedWorkItem[], warnings: string[]): string {
   const paths = items.map((i) => i.iterationPath).filter((p) => p !== '');
   if (paths.length === 0) return 'Imported sprint';
@@ -277,13 +346,17 @@ export function parsePerformanceImport(input: { format: ImportFormat; raw: strin
       rows = parsed as Row[];
     } else if (parsed && typeof parsed === 'object') {
       const obj = parsed as Row;
-      const candidate = (obj.workItems ?? obj.items ?? obj.value) as unknown;
-      if (Array.isArray(candidate)) {
-        rows = candidate as Row[];
+      if (isTrelloBoardExport(obj)) {
+        rows = adaptTrelloBoardExport(obj as unknown as TrelloBoardExport);
       } else {
-        throw new ValidationError(
-          'The pasted JSON must be an array of work items, or an object with a "workItems"/"items"/"value" array.'
-        );
+        const candidate = (obj.workItems ?? obj.items ?? obj.value) as unknown;
+        if (Array.isArray(candidate)) {
+          rows = candidate as Row[];
+        } else {
+          throw new ValidationError(
+            'The pasted JSON must be an array of work items, a Trello board export, or an object with a "workItems"/"items"/"value" array.'
+          );
+        }
       }
     } else {
       throw new ValidationError('The pasted JSON must be an array of work items.');

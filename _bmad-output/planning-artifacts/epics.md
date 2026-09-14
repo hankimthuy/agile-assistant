@@ -18,7 +18,7 @@ This document provides the complete epic and story breakdown for AgileCopilot, d
 
 - FR-1: Ingest sprint data
 - FR-2: Generate business narrative report
-- FR-3: Post report summary to Teams
+- FR-3: Copy report summary for sharing
 - FR-4: Ingest Confluence docs
 - FR-5: Match ticket ↔ document
 - FR-6: Flag missing / orphan docs
@@ -31,6 +31,10 @@ This document provides the complete epic and story breakdown for AgileCopilot, d
 - FR-13: Delegation suggestions
 - FR-14: Draft emails/messages
 - FR-15: Track pending approvals
+- FR-16: Ingest a sprint export from any tool
+- FR-17: Velocity & Completion template
+- FR-18: Quality & Bug Health template
+- FR-19: Workload & Aging template
 
 ### NonFunctional Requirements
 
@@ -40,12 +44,12 @@ This document provides the complete epic and story breakdown for AgileCopilot, d
 
 ### Additional Requirements
 
-- MoSCoW build order (PRD §6.2): Epic 1 and Epic 5 are must-have; Epic 3 is should-have; Epic 2 is cut first if time runs short.
-- Environment variables required: `ANTHROPIC_API_KEY`, `TEAMS_WEBHOOK_URL` (spec.md §6).
+- MoSCoW build order (PRD §6.2): Epic 1 and Epic 5 are must-have; Epic 3 and Epic 6 are should-have; Epic 2 is cut first if time runs short.
+- Environment variables required: `GEMINI_API_KEY` (optional — spec.md §6).
 
 ### UX Design Requirements
 
-No standalone UX spec exists yet for this POC. The Ops Hub is the home screen (four columns/tabs: My Work / Delegatable / Awaiting Approval / Needs Reply); Report, Process Health, and Doc Linker are secondary views reached from a menu (PRD §4.4, §4.5).
+No standalone UX spec exists yet for this POC. The signed-in Overview screen is the home screen and surfaces the Ops Hub's highlights first; Ops Hub (four columns/tabs: My Work / Delegatable / Awaiting Approval / Needs Reply), Report, Process Health, Doc Linker, and Performance Import are reached from the nav (PRD §4.4, §4.5).
 
 ### FR Coverage Map
 
@@ -66,6 +70,10 @@ No standalone UX spec exists yet for this POC. The Ops Hub is the home screen (f
 | FR-13 | 5.2 |
 | FR-14 | 5.3 |
 | FR-15 | 5.4 |
+| FR-16 | 6.1 |
+| FR-17 | 6.2 |
+| FR-18 | 6.3 |
+| FR-19 | 6.4 |
 
 ## Epic List
 
@@ -74,10 +82,11 @@ No standalone UX spec exists yet for this POC. The Ops Hub is the home screen (f
 3. Epic 3: Process Health (should-have)
 4. Epic 4: Dashboard UI
 5. Epic 5: Ops Hub (must-have)
+6. Epic 6: Performance Import (should-have)
 
 ## Epic 1: Auto Report
 
-Automate sprint reporting so the Scrum Master never hand-compiles a status report again, and PM/PO always receive a business-framed summary in Teams.
+Automate sprint reporting so the Scrum Master never hand-compiles a status report again, and the Product Owner always has a business-framed summary to read.
 
 ### Story 1.1: Ingest sprint data
 
@@ -97,7 +106,7 @@ So that I don't have to enter it by hand.
 
 ### Story 1.2: Generate business narrative report
 
-As a Scrum Master (creating it) and PM/PO (reading it),
+As a Scrum Master (creating it) and Product Owner (reading it),
 I want one click to produce a plain-language report plus key metrics,
 So that I don't have to write it by hand.
 
@@ -111,21 +120,21 @@ So that I don't have to write it by hand.
 **When** the report is generated
 **Then** the narrative still reads sensibly rather than looking broken or incomplete
 
-### Story 1.3: Post report summary to Teams
+### Story 1.3: Copy report summary for sharing
 
-As a PM/PO,
-I want to receive the report summary directly in Teams,
-So that I don't have to proactively open the dashboard.
+As a Scrum Master or Product Owner,
+I want to copy the report summary to my clipboard in one click,
+So that I can paste it wherever my team already reads updates.
 
 **Acceptance Criteria:**
 
 **Given** a generated report
-**When** "Send to Teams" is clicked
-**Then** a message is posted via the Teams Incoming Webhook containing a 2–3 sentence summary and a link into the dashboard
+**When** "Copy report" is clicked
+**Then** a 2–3 sentence summary, key stats, and the full narrative are copied to the clipboard
 
-**Given** the Teams webhook is unreachable or returns an error
-**When** "Send to Teams" is clicked
-**Then** the error is logged and the main report flow does not crash
+**Given** the copy action runs
+**When** it completes
+**Then** it never fails due to a third-party service, since it makes no network call
 
 ## Epic 2: Doc Linker
 
@@ -209,19 +218,19 @@ So that I can act on the worst gaps first.
 
 ## Epic 4: Dashboard UI
 
-Present all four pillars in one web dashboard; Ops Hub is the home screen (Epic 5), the other three pillars are secondary views.
+Present all five pillars in one web dashboard; the signed-in Overview screen is the home screen and surfaces Ops Hub's highlights first (Epic 5), the other pillars are views reached from the nav.
 
 ### Story 4.1: Report view
 
 As a Scrum Master,
 I want the Report pillar rendered as its own dashboard view,
-So that I can review and send it without leaving the app.
+So that I can review and copy it without leaving the app.
 
 **Acceptance Criteria:**
 
 **Given** a generated report
 **When** the Report view opens
-**Then** the narrative and stat tiles (velocity, completion %, bugs) render, with a "Send to Teams" control
+**Then** the narrative and stat tiles (velocity, completion %, bugs) render, with a "Copy report" control
 
 ### Story 4.2: Process Health view
 
@@ -260,7 +269,7 @@ So that I don't have to remember or hunt for it across multiple tools.
 **Acceptance Criteria:**
 
 **Given** a valid `ops-inbox-sample.json` matching the schema in spec.md §7
-**When** the Ops Hub (home screen) loads
+**When** the Ops Hub loads
 **Then** items render in four groups — My Work / Delegatable / Awaiting Approval / Needs Reply — each item showing its source (Jira/Teams/Email) and how many days it has been open
 
 ### Story 5.2: Delegation suggestions
@@ -306,3 +315,59 @@ So that I can proactively follow up instead of waiting passively.
 **Given** a `pending_approval` item shown with a wait-time badge
 **When** "Draft reminder" is clicked
 **Then** it reuses Story 5.3's drafting behavior
+
+## Epic 6: Performance Import
+
+On-demand analysis of a sprint export pasted/uploaded from any tool (Azure Boards, Jira, Trello, a plain spreadsheet), used directly by both the Scrum Master and the Product Owner — no live connection to any of those tools.
+
+### Story 6.1: Ingest a sprint export from any tool
+
+As a Scrum Master or Product Owner,
+I want to paste or upload the CSV/TSV/JSON export I already have,
+So that I don't have to re-enter anything by hand or wait for a real integration.
+
+**Acceptance Criteria:**
+
+**Given** pasted text or an uploaded `.csv`/`.tsv`/`.txt`/`.json` file
+**When** the format is auto-detected (comma vs. tab; JSON array vs. Azure query shape vs. Trello board export)
+**Then** rows are normalized into work items, tolerating column-name variants across tools and object-valued fields (e.g. Azure's `AssignedTo`)
+
+**Given** malformed or empty input, or a merely incomplete export (e.g. no Story Points column)
+**When** it is submitted
+**Then** a clear error is shown for unusable input, or a report is still produced with the gap surfaced as a data-quality note — never a hard crash
+
+### Story 6.2: Velocity & Completion template
+
+As a Scrum Master or Product Owner,
+I want velocity, completion rate, and a by-type breakdown computed from the imported export,
+So that I can report on work tracked in any tool.
+
+**Acceptance Criteria:**
+
+**Given** normalized work items
+**When** the report is computed
+**Then** velocity (sum of Story Points on done-equivalent items), completion rate, and a by-type (story/task/bug/other) breakdown render
+
+### Story 6.3: Quality & Bug Health template
+
+As a Scrum Master or Product Owner,
+I want open/closed bug counts and a severity breakdown from the imported export,
+So that quality trends are visible without a separate report.
+
+**Acceptance Criteria:**
+
+**Given** normalized work items
+**When** the report is computed
+**Then** total/open/closed bug counts and bug ratio render, with a severity breakdown when a Severity/Priority column exists, otherwise a plain note
+
+### Story 6.4: Workload & Aging template
+
+As a Scrum Master or Product Owner,
+I want to see work distributed by assignee and flag items that have gone stale,
+So that I can spot an overloaded teammate or a forgotten item.
+
+**Acceptance Criteria:**
+
+**Given** normalized work items with a last-changed date
+**When** the report is computed
+**Then** item counts (total/done) group by assignee, and items past the configurable stale-after-N-days threshold (Story 3.1's Rule 3, reused) are flagged

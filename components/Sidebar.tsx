@@ -103,7 +103,7 @@ export function Sidebar({ sprintName }: { sprintName?: string }) {
     <div className="flex h-full flex-col gap-4 border-r border-line py-5">
       <div className="px-4">
         <span className="font-heading text-[17px] font-semibold tracking-wide">AGILECOPILOT</span>
-        <div className="lbl mt-0.5">{sprintName ? `${sprintName} · Scrum Master` : 'Scrum Master workspace'}</div>
+        <div className="lbl mt-0.5">{sprintName ? `${sprintName} · Sprint workspace` : 'Sprint workspace'}</div>
       </div>
 
       <nav className="flex flex-col">
@@ -123,9 +123,9 @@ export function Sidebar({ sprintName }: { sprintName?: string }) {
       </nav>
 
       <div className="mt-auto flex items-center gap-2.5 border-t border-line px-4 pt-3.5">
-        <div className="grid h-7 w-7 place-items-center border border-line font-heading text-xs font-semibold">SM</div>
+        <div className="grid h-7 w-7 place-items-center border border-line font-heading text-xs font-semibold">SW</div>
         <div className="leading-tight">
-          <div className="text-[13px] font-medium">Scrum Master</div>
+          <div className="text-[13px] font-medium">Sprint workspace</div>
           <div className="text-[11px] text-muted">Signed in via fixture data</div>
         </div>
       </div>

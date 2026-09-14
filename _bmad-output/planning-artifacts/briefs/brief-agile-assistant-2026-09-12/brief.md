@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-AgileCopilot turns "reporting sprint progress & keeping documentation tidy" from a Scrum Master's manual, hours-long chore into an automated, always-current background process. It sits as a connective layer over the tools a team already uses — Jira, Confluence, Teams — so that closing a ticket automatically produces a business-meaningful report, automatically links the right documentation, and automatically flags process steps that got skipped. A second, equally important layer — the Ops Hub — gives the Scrum Master one place to see everything on their plate (their own tasks, delegatable work, pending approvals, unanswered messages) so they stop being the bottleneck for the whole team.
+AgileCopilot turns "reporting sprint progress & keeping documentation tidy" from a Scrum Master's manual, hours-long chore into an automated, always-current background process. It sits as a connective layer over the tools a team already uses — Jira, Confluence — so that closing a ticket automatically produces a business-meaningful report, automatically links the right documentation, and automatically flags process steps that got skipped. A second, equally important layer — the Ops Hub — gives the Scrum Master one place to see everything on their plate (their own tasks, delegatable work, pending approvals, unanswered messages) so they stop being the bottleneck for the whole team.
 
 ## The Problem
 
@@ -12,7 +12,7 @@ Existing tools solve only fragments of this: engineering-intelligence platforms 
 
 ## The Solution
 
-AgileCopilot does not replace Jira or Confluence — it is the connective layer between them. At the end of a sprint, it reads ticket and documentation data and produces a narrative business report (not just dry metrics), automatically links relevant documentation to each ticket/epic, flags missing or orphaned documentation, and surfaces process-health gaps (missing acceptance criteria, stale tickets) as soon as they're detectable rather than after the fact. A fourth pillar, the Ops Hub, is the home screen: it gathers the Scrum Master's own tasks, delegatable work, pending approvals, and unanswered messages into one list, with AI-drafted delegation suggestions and reply drafts — always leaving the human as the final decision-maker.
+AgileCopilot does not replace Jira or Confluence — it is the connective layer between them. At the end of a sprint, it reads ticket and documentation data and produces a narrative business report (not just dry metrics), automatically links relevant documentation to each ticket/epic, flags missing or orphaned documentation, and surfaces process-health gaps (missing acceptance criteria, stale tickets) as soon as they're detectable rather than after the fact. A fourth pillar, the Ops Hub, is the Scrum Master's daily list (its highlights are also what the signed-in home screen surfaces first): it gathers the Scrum Master's own tasks, delegatable work, pending approvals, and unanswered messages into one list, with AI-drafted delegation suggestions and reply drafts — always leaving the human as the final decision-maker.
 
 ## What Makes This Different
 
@@ -20,9 +20,11 @@ The differentiation is the connective layer itself, not any single measurement: 
 
 ## Who This Serves
 
-**Primary — Scrum Master (operator).** Running 1–2 concurrent sprints, responsible for ceremonies, impediments, and Definition of Done. Success looks like: report creation time drops from hours to under 5 minutes, no more answering "where's document X" from memory, and nothing forgotten because it's scattered across tools.
+**Scrum Master (operator).** Running 1–2 concurrent sprints, responsible for ceremonies, impediments, and Definition of Done. Success looks like: report creation time drops from hours to under 5 minutes, no more answering "where's document X" from memory, and nothing forgotten because it's scattered across tools.
 
-**Secondary — PM & PO (report consumer).** Doesn't operate the tool, only receives the output via Teams. Success looks like: reading one report is enough to understand the sprint's business value, with no follow-up meeting needed to explain it.
+**Product Owner (operator).** Owns the backlog and the sprint's outcome — prioritization, acceptance criteria, stakeholder value. Opens AgileCopilot directly for Auto Report, Performance Import, and Process Health, rather than asking the Scrum Master for a status update. Success looks like: reading one report is enough to understand the sprint's business value with no follow-up meeting, and backlog hygiene gaps (missing acceptance criteria, stale tickets) surface before sprint review, not after.
+
+Both are co-equal operators: the Scrum Master's own workspace is Ops Hub and Doc Linker; Auto Report, Process Health, and Performance Import are shared ground both personas use directly.
 
 ## Success Criteria
 
@@ -33,7 +35,7 @@ The differentiation is the connective layer itself, not any single measurement: 
 
 ## Scope
 
-**In for the first version (7-day POC):** sample-data ingestion for Jira-shaped sprint/ticket data, Confluence-shaped documentation, and an "ops inbox" (tasks/emails/approvals); one real integration (a Teams Incoming Webhook); LLM-generated narrative sprint reports; a fixed-rule Process Health table; an Ops Hub with delegation suggestions and drafted (never auto-sent) replies; a single dashboard surfacing all four pillars.
+**In for the first version (7-day POC):** sample-data ingestion for Jira-shaped sprint/ticket data, Confluence-shaped documentation, and an "ops inbox" (tasks/emails/approvals); zero live external integrations — reports are copied by the user, not auto-sent; LLM-generated narrative sprint reports; a fixed-rule Process Health table; an Ops Hub with delegation suggestions and drafted (never auto-sent) replies; a single dashboard surfacing all four pillars.
 
 **Explicitly out for this version:** real enterprise SSO/authentication; live Azure DevOps, email, or Jira write-back integrations (mocked in the demo, named as roadmap); any automatic sending of messages on the user's behalf; multi-project/multi-department support; ML-based risk prediction; a mobile app.
 
