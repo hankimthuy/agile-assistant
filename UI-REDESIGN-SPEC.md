@@ -19,6 +19,15 @@ Source of truth for *why* the product exists and *what it must do* is
 `_bmad-output/planning-artifacts/`. This document is the bridge from "the
 functional requirements" to "the actual screen you'd be redesigning."
 
+> **Note (2026-09-14):** this document predates a UI redesign that already
+> shipped (a `Sidebar` replaces the top `Nav` this doc describes below, a
+> new `/overview` screen is now the signed-in home, and `/` is a public
+> marketing landing page rather than Ops Hub) and the removal of the
+> "Send to Teams" feature (replaced by a "Copy report" clipboard action).
+> Treat the Nav/home-screen/Teams details below as historical redesign
+> input, not the current shipped IA — read the live app (`components/
+> Sidebar.tsx`, `app/(app)/*`) or `spec.md` for what's actually true today.
+
 ## 1. Navigation & information architecture
 
 Five screens, one flat-level nav, no nesting:

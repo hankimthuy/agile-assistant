@@ -9,19 +9,22 @@ status: draft
 
 ## 0. Document Purpose
 
-This PRD is for whoever builds and pitches the AgileCopilot POC — primarily the Scrum Master driving the 7-day build, and the internal stakeholders/employer it will be pitched to. It is structured around the four product pillars (Ops Hub, Auto Report, Doc Linker, Process Health), with functional requirements numbered globally (FR-1 through FR-15) and grouped under the pillar they belong to. It builds on `spec.md` (the original technical spec this PRD distills) and the Product Brief in this same output tree — it does not duplicate their reasoning, only restates the decisions in PRD shape.
+This PRD is for whoever builds and pitches the AgileCopilot POC — primarily the Scrum Master driving the 7-day build, and the internal stakeholders/employer it will be pitched to. It is structured around the five product pillars (Ops Hub, Auto Report, Doc Linker, Process Health, Performance Import), with functional requirements numbered globally (FR-1 through FR-19) and grouped under the pillar they belong to. It builds on `spec.md` (the original technical spec this PRD distills) and the Product Brief in this same output tree — it does not duplicate their reasoning, only restates the decisions in PRD shape.
 
 ## 1. Vision
 
-AgileCopilot turns sprint reporting and documentation upkeep from a Scrum Master's manual burden into an automated, always-current background process, and gives that same Scrum Master one place to see everything on their plate so they stop being the team's bottleneck. It is a connective layer over Jira, Confluence, and Teams — not a replacement for any of them — so a closed ticket automatically produces a business-narrative report with the right documentation already attached, and process drift is visible the moment it happens rather than after it's already late.
+AgileCopilot turns sprint reporting and documentation upkeep from a Scrum Master's manual burden into an automated, always-current background process, and gives that same Scrum Master one place to see everything on their plate so they stop being the team's bottleneck — while giving the Product Owner the sprint outcome directly, without asking anyone. It is a connective layer over Jira and Confluence — not a replacement for either — so a closed ticket automatically produces a business-narrative report with the right documentation already attached, and process drift is visible the moment it happens rather than after it's already late.
 
 ## 2. Target User
+
+AgileCopilot serves two co-equal operator personas — Scrum Master and Product Owner both open the app directly (see `spec.md` §2 for the full persona detail).
 
 ### 2.1 Jobs To Be Done
 
 - "When the sprint ends, I want a trustworthy report with all the relevant documentation attached immediately, so I don't have to compile it by hand." (Scrum Master)
 - "I want one place that shows everything on my plate — what I have to do myself, what can be delegated, what's waiting on approval, which emails are unanswered — so I'm not the bottleneck myself." (Scrum Master)
-- "I want to know what business value the last sprint created, without having to ask anyone." (PM/PO)
+- "I want to know what business value the last sprint created, without having to ask anyone." (Product Owner)
+- "I want to catch backlog hygiene issues on my own tickets before review, not after." (Product Owner)
 
 ### 2.2 Non-Users (v1)
 
@@ -30,16 +33,16 @@ Individual contributors (developers, designers) are not direct users of AgileCop
 ### 2.3 Key User Journeys
 
 - **UJ-1. The Scrum Master closes out a sprint in minutes, not hours.**
-  - **Persona + context:** the Scrum Master, at the end of Sprint 24, needs a report to send to PM/PO.
+  - **Persona + context:** the Scrum Master, at the end of Sprint 24, needs a report the Product Owner can act on.
   - **Entry state:** opens the AgileCopilot dashboard, sprint data already ingested from the sample Jira export.
-  - **Path:** clicks "Generate Report" → reviews the narrative + stat tiles → clicks "Send to Teams."
-  - **Climax:** the report lands in the PM/PO's Teams channel within seconds, with a business-language summary and a link to the full dashboard.
+  - **Path:** clicks "Generate Report" → reviews the narrative + stat tiles → clicks "Copy report."
+  - **Climax:** a ready-to-paste summary is on the clipboard within seconds, with a business-language summary the Product Owner can read directly in the app or via the pasted copy.
   - **Resolution:** the Scrum Master has spent under 5 minutes instead of 2–3 hours; realizes FR-2, FR-3.
   - **Edge case:** some tickets are still "In Progress" when the report runs — the narrative still reads sensibly rather than looking broken.
 
 - **UJ-2. The Scrum Master stops being the bottleneck.**
   - **Persona + context:** the Scrum Master opens AgileCopilot at the start of the day, not sure what's most urgent.
-  - **Entry state:** the Ops Hub is the home screen; ops-inbox sample data is already ingested.
+  - **Entry state:** the signed-in Overview screen surfaces the Ops Hub's highlights first; ops-inbox sample data is already ingested.
   - **Path:** scans the four columns (My Work / Delegatable / Awaiting Approval / Needs Reply) → sees a delegation suggestion with a reason → clicks "Delegate" → sees a pending approval waiting 4 days → clicks "Draft reminder" → copies the drafted text and sends it themselves.
   - **Climax:** the Scrum Master has moved or actioned every item without hunting across Jira/Teams/email.
   - **Resolution:** nothing is quietly waiting on the Scrum Master personally; realizes FR-12 through FR-15.
@@ -57,7 +60,7 @@ Individual contributors (developers, designers) are not direct users of AgileCop
 
 ### 4.1 Auto Report
 
-**Description:** At the end of a sprint, the system reads ticket/sprint data and produces a business-narrative report plus key metrics, then posts a summary to Teams. Realizes UJ-1.
+**Description:** At the end of a sprint, the system reads ticket/sprint data and produces a business-narrative report plus key metrics, ready to copy and share. Realizes UJ-1.
 
 #### FR-1: Ingest sprint data
 
@@ -77,16 +80,16 @@ The Scrum Master can generate a sprint report combining a plain-language busines
 - Generation completes in under 30 seconds on the sample dataset.
 - The report reads sensibly when some tickets are still "In Progress."
 
-#### FR-3: Post report summary to Teams
+#### FR-3: Copy report summary for sharing
 
-The PM/PO receives a report summary directly in Teams. Realizes UJ-1.
+Either persona can copy a ready-to-paste report summary to the clipboard. Realizes UJ-1.
 
 **Consequences (testable):**
-- Sends successfully via a Teams Incoming Webhook.
-- Message includes a 2–3 sentence summary plus a link into the dashboard.
-- A webhook failure is logged and does not crash the main report flow.
+- A "Copy report" control copies successfully in one click, entirely client-side.
+- Copied text includes a 2–3 sentence summary, key stats, and the full narrative.
+- Never fails due to an unreachable third-party service — there is no network call.
 
-**Out of Scope:** automatically sending to any channel other than the one configured webhook.
+**Out of Scope:** automatically posting to any messaging platform on the user's behalf.
 
 ### 4.2 Doc Linker
 
@@ -140,13 +143,13 @@ The Scrum Master can see every violating ticket, ranked by severity.
 
 ### 4.4 Dashboard UI
 
-**Description:** A single web dashboard surfaces all four pillars; Ops Hub is the home screen (§4.5), the other three pillars are secondary views reached from a menu.
+**Description:** A single web dashboard surfaces all five pillars; the signed-in Overview screen is the home screen and surfaces Ops Hub's highlights first (§4.5), the other pillars are views reached from the nav.
 
 #### FR-9: Report view
 
 **Consequences (testable):**
 - Displays the narrative plus stat tiles (velocity, completion %, bugs).
-- Includes a "Send to Teams" control that triggers FR-3.
+- Includes a "Copy report" control that triggers FR-3.
 
 #### FR-10: Process Health view
 
@@ -160,7 +163,7 @@ The Scrum Master can see every violating ticket, ranked by severity.
 
 ### 4.5 Ops Hub
 
-**Description:** The home screen. Gathers everything the Scrum Master needs to act on into one list, with AI-drafted delegation suggestions and reply drafts. The human always sends and always assigns — nothing here auto-executes. Realizes UJ-2.
+**Description:** The Scrum Master's daily list — its highlights are also what the signed-in Overview screen (§4.4) shows first. Gathers everything the Scrum Master needs to act on into one list, with AI-drafted delegation suggestions and reply drafts. The human always sends and always assigns — nothing here auto-executes. Realizes UJ-2.
 
 #### FR-12: Gather all of the Scrum Master's work into one list
 
@@ -192,6 +195,38 @@ The Scrum Master can see every violating ticket, ranked by severity.
 - A red badge appears once the wait exceeds N days (default 3, configurable).
 - A "Draft reminder" control reuses FR-14.
 
+### 4.6 Performance Import
+
+**Description:** On-demand analysis of a sprint export pasted/uploaded from any tool (Azure Boards, Jira, Trello, a plain spreadsheet) — no live connection to any of those tools. Used directly by both the Scrum Master and the Product Owner (spec.md §3 Pillar 5, Epic 6).
+
+#### FR-16: Ingest a sprint export from any tool
+
+**Consequences (testable):**
+- Accepts pasted text or an uploaded `.csv`/`.tsv`/`.txt`/`.json` file; auto-detects comma- vs. tab-delimited text.
+- Tolerates column-name variants across tools (Azure, Jira, plain spreadsheet), including Azure's JSON field-reference names and object-valued fields (e.g. `AssignedTo`).
+- A "Load sample data" control demos the feature with zero setup.
+- Malformed/empty input shows a clear error, never crashes; an incomplete export still produces a report with the gap surfaced as a data-quality note.
+
+#### FR-17: Velocity & Completion template
+
+**Consequences (testable):**
+- Velocity = sum of Story Points on done-equivalent items; completion rate = done ÷ total.
+- A breakdown by work-item type (story/task/bug/other) shows total vs. done per type.
+
+#### FR-18: Quality & Bug Health template
+
+**Consequences (testable):**
+- Total, open, and closed bug counts, plus bug ratio.
+- A severity breakdown when the export has a Severity/Priority column; otherwise a plain note, never a blank/broken table.
+
+#### FR-19: Workload & Aging template
+
+**Consequences (testable):**
+- Item counts (total/done) grouped by assignee.
+- Reuses the Process Health "stale after N days" rule (FR-7, Rule 3) against each item's last-changed date; N is configurable in the UI.
+
+**Out of Scope:** multi-sprint trend/burndown-over-time — a single export is a one-shot snapshot.
+
 ## 5. Non-Goals (Explicit)
 
 - AgileCopilot is not a Jira or Confluence replacement — it never becomes the system of record for tickets or docs.
@@ -204,10 +239,11 @@ The Scrum Master can see every violating ticket, ranked by severity.
 ### 6.1 In Scope
 
 - Sample-data ingestion for sprint/ticket, Confluence, and ops-inbox data (JSON, structurally identical to a real export).
-- One real integration: a Teams Incoming Webhook.
+- Zero live external integrations — every report/draft is copied by the user, never auto-sent.
 - LLM-generated narrative reports, ticket↔doc matching, delegation suggestions, and reply drafts.
 - A fixed-rule Process Health table.
-- A single web dashboard covering all four pillars.
+- On-demand Performance Import for any-tool sprint exports (FR-16–19).
+- A single web dashboard covering all five pillars.
 
 ### 6.2 Out of Scope for MVP
 
@@ -215,8 +251,9 @@ The Scrum Master can see every violating ticket, ranked by severity.
 - Live Azure DevOps, email, or Jira write-back integrations — mocked in the demo, named as roadmap.
 - Multi-project/multi-department support.
 - ML-based risk prediction; a mobile app.
+- A real database — persistence is planned for a future phase, not this one.
 
-**MoSCoW priority for the 7-day build:** Must-have — Epic 1 Auto Report, Epic 5 Ops Hub (FR-1–3, FR-12–15). Should-have — Epic 3 Process Health (FR-7–8). Cut first if time runs short — Epic 2 Doc Linker (FR-4–6), replaceable with static illustrative slides.
+**MoSCoW priority for the 7-day build:** Must-have — Epic 1 Auto Report, Epic 5 Ops Hub (FR-1–3, FR-12–15). Should-have — Epic 3 Process Health (FR-7–8), Epic 6 Performance Import (FR-16–19). Cut first if time runs short — Epic 2 Doc Linker (FR-4–6), replaceable with static illustrative slides.
 
 ## 7. Success Metrics
 
@@ -227,6 +264,7 @@ The Scrum Master can see every violating ticket, ranked by severity.
 **Secondary**
 - **SM-3**: Process gaps are visible at report-generation time rather than discovered late. Validates FR-7, FR-8.
 - **SM-4**: The Scrum Master can name everything on their plate from the Ops Hub alone, without checking Jira/Teams/email separately. Validates FR-12–FR-15.
+- **SM-5**: Time to get a performance snapshot from a sprint export (any tool) — target under 1 minute after pasting, down from ~30–60 minutes of manual pivot tables. Validates FR-16–FR-19.
 
 **Counter-metrics (do not optimize)**
 - **SM-C1**: Delegation-suggestion volume should not be optimized by suggesting delegation more often than is actually appropriate — a wrong suggestion costs trust. Counterbalances SM-4.

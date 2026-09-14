@@ -44,48 +44,40 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 items-start gap-8 px-6 py-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:px-11 md:py-14">
-        <div className="flex flex-col gap-5">
-          <span className="tag tag-outline self-start">
-            For Scrum Masters &amp; Product Owners · no live tool connection required
-          </span>
-          <h1 className="text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
-            The sprint update everyone needs, without the meeting.
-          </h1>
-          <p className="max-w-[52ch] text-base leading-relaxed text-muted md:text-lg">
-            AgileCopilot reads your sprint export and your inbox, then turns it into what a Scrum Master needs to
-            act on today — overdue approvals, ticket hygiene, who could take what — and what a Product Owner needs
-            to know this sprint, without asking anyone. It drafts. You decide.
-          </p>
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Link href="/performance-import" className="btn btn-primary px-5 py-2.5 text-[15px]">
-              Import a sprint export
-            </Link>
-            <Link href="/report" className="btn btn-secondary px-5 py-2.5 text-[15px]">
-              See a sample report
-            </Link>
+      <section className="flex flex-col items-start gap-5 px-6 py-10 md:px-11 md:py-14">
+        <span className="tag tag-outline self-start">
+          For Scrum Masters &amp; Product Owners · no live tool connection required
+        </span>
+        <h1 className="max-w-[22ch] text-[38px] leading-[0.98] tracking-tight md:text-[56px]">
+          The sprint update everyone needs, without the meeting.
+        </h1>
+        <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
+          AgileCopilot reads your sprint export and your inbox, then turns it into what a Scrum Master needs to
+          act on today — overdue approvals, ticket hygiene, who could take what — and what a Product Owner needs
+          to know this sprint, without asking anyone. It drafts. You decide.
+        </p>
+        <div className="flex flex-wrap gap-3 pt-1">
+          <Link href="/performance-import" className="btn btn-primary px-5 py-2.5 text-[15px]">
+            Import a sprint export
+          </Link>
+          <Link href="/report" className="btn btn-secondary px-5 py-2.5 text-[15px]">
+            See a sample report
+          </Link>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-6 border-t border-line pt-3">
+          <div>
+            <div className="metric-sm">CSV · TSV · JSON</div>
+            <div className="lbl mt-1">Any export</div>
           </div>
-          <div className="mt-2 flex flex-wrap gap-6 border-t border-line pt-3">
-            <div>
-              <div className="metric-sm">CSV · TSV · JSON</div>
-              <div className="lbl mt-1">Any export</div>
-            </div>
-            <div>
-              <div className="metric-sm">Jira · Azure · Trello</div>
-              <div className="lbl mt-1">Where it comes from</div>
-            </div>
-            <div>
-              <div className="metric-sm">0</div>
-              <div className="lbl mt-1">Messages sent for you</div>
-            </div>
+          <div>
+            <div className="metric-sm">Jira · Azure · Trello</div>
+            <div className="lbl mt-1">Where it comes from</div>
+          </div>
+          <div>
+            <div className="metric-sm">0</div>
+            <div className="lbl mt-1">Messages sent for you</div>
           </div>
         </div>
-
-        <Panel className="flex h-[280px] items-center justify-center bg-surface text-center md:h-[420px]" style={{ overflow: 'visible' }}>
-          <div className="max-w-[26ch] px-6 text-sm text-muted">
-            Hero photograph — a sprint board mid-review, or an empty planning room.
-          </div>
-        </Panel>
       </section>
 
       <section id="how-it-works" className="px-6 pb-12 md:px-11">
@@ -165,12 +157,7 @@ export default async function LandingPage() {
 
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-6 py-6 md:px-11">
         <span className="font-heading text-base font-semibold">AGILECOPILOT</span>
-        <div className="flex gap-5 text-[13px] text-muted">
-          <span>Privacy</span>
-          <span>Security</span>
-          <span>Changelog</span>
-          <span>Contact</span>
-        </div>
+        <span className="text-[13px] text-muted">A proof of concept — no data leaves your browser without you sending it.</span>
       </footer>
     </div>
   );

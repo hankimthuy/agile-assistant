@@ -24,7 +24,6 @@ export default function ReportPage() {
   const [report, setReport] = useState<ReportResult | null>(null);
   const [missingDocCount, setMissingDocCount] = useState(0);
   const [generating, setGenerating] = useState(false);
-  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadSprint();
@@ -62,34 +61,25 @@ export default function ReportPage() {
     }
   }
 
-  async function sendToTeams() {
-    if (!report) return;
-    setSending(true);
-    try {
-      const res = await fetch('/api/teams/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sprintId: report.sprintId,
-          sprintName: report.sprintName,
-          summary: firstSentences(report.narrative, 2),
-          doneCount: sprintData?.tickets.filter((t) => t.status === 'done').length ?? 0,
-          totalCount: sprintData?.tickets.length ?? 0,
-          velocity: report.velocity,
-          missingDocCount,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        showToast(`Could not send to Teams: ${data.error ?? 'unknown error'}`, 'error');
-      } else {
-        showToast('Report summary sent to Teams', 'success');
-      }
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Could not send to Teams', 'error');
-    } finally {
-      setSending(false);
-    }
+  // Builds the same summary the old "Send to Teams" webhook used to post —
+  // sprint name, done/total, velocity, missing-doc count, narrative — as
+  // plain text ready to paste into whatever channel the team already uses.
+  function buildReportText(): string {
+    if (!report) return '';
+    const doneCount = sprintData?.tickets.filter((t) => t.status === 'done').length ?? 0;
+    const totalCount = sprintData?.tickets.length ?? 0;
+    const missingDocLine =
+      missingDocCount > 0 ? ` ${missingDocCount} ticket${missingDocCount === 1 ? '' : 's'} missing documentation.` : '';
+    return (
+      `**${report.sprintName} — Automated Report**\n` +
+      `${doneCount}/${totalCount} stories completed (velocity ${report.velocity} points). ` +
+      `${firstSentences(report.narrative, 2)}${missingDocLine}\n\n${report.narrative}`
+    );
+  }
+
+  async function copyReport() {
+    await navigator.clipboard.writeText(buildReportText()).catch(() => {});
+    showToast('Report copied — paste it wherever your team reads updates', 'success');
   }
 
   const byType = useMemo(() => {
@@ -126,8 +116,8 @@ export default function ReportPage() {
             Refresh data
           </button>
           {report && (
-            <button onClick={sendToTeams} disabled={sending} className="btn btn-primary">
-              {sending ? 'Sending…' : 'Send to Teams'}
+            <button onClick={copyReport} className="btn btn-primary">
+              Copy report
             </button>
           )}
         </div>
@@ -213,20 +203,11 @@ export default function ReportPage() {
             </div>
             <p className="max-w-[88ch] text-base leading-relaxed">{report.narrative}</p>
             <div className="flex flex-wrap gap-2.5 pt-1">
-              <button onClick={sendToTeams} disabled={sending} className="btn btn-primary">
-                {sending ? 'Sending…' : 'Send to Teams'}
+              <button onClick={copyReport} className="btn btn-primary">
+                Copy report
               </button>
               <button onClick={generateReport} disabled={generating} className="btn btn-secondary">
                 Regenerate
-              </button>
-              <button
-                onClick={async () => {
-                  await navigator.clipboard.writeText(report.narrative).catch(() => {});
-                  showToast('Narrative copied as markdown', 'success');
-                }}
-                className="btn btn-secondary"
-              >
-                Copy markdown
               </button>
             </div>
           </Panel>

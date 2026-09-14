@@ -24,7 +24,7 @@ Turn "reporting progress & keeping documentation tidy" from a Scrum Master's man
 
 ## 2. Personas
 
-AgileCopilot serves two co-equal operator personas — a Scrum Master and a Product Owner both open the app directly, each for the parts of it that answer their own job. Neither is a passive report recipient; a Teams notification is a convenience on top of the app, not the primary way either persona uses it.
+AgileCopilot serves two co-equal operator personas — a Scrum Master and a Product Owner both open the app directly, each for the parts of it that answer their own job. Neither is a passive report recipient waiting on a message from someone else.
 
 ### 2.1 Scrum Master — persona (operator)
 
@@ -40,7 +40,7 @@ AgileCopilot serves two co-equal operator personas — a Scrum Master and a Prod
 - **Current pain points:** has to ask the Scrum Master to find out whether progress is actually creating business value; the reports they get are usually dry numbers with no context; backlog hygiene problems (missing acceptance criteria, tickets going stale) usually only surface once they've already become a sprint-review surprise.
 - **Jobs-to-be-done:** "I want to know what business value the last sprint created, without having to ask anyone." + "I want to catch backlog hygiene issues on my own tickets before review, not after."
 - **How they measure success:** reading one report is enough to understand business value immediately, with no follow-up meeting needed to explain it; hygiene gaps in their backlog surface with time to fix them, not as a surprise.
-- **How they interact with the product:** opens AgileCopilot directly to read Auto Report and check Performance Import (velocity/quality trend) and Process Health (acceptance-criteria gaps); does not use Ops Hub's day-to-day triage — that stays the Scrum Master's tool. Also receives the automatic Auto Report summary via Teams as a convenience.
+- **How they interact with the product:** opens AgileCopilot directly to read Auto Report and check Performance Import (velocity/quality trend) and Process Health (acceptance-criteria gaps); does not use Ops Hub's day-to-day triage — that stays the Scrum Master's tool. Auto Report has a "Copy report" action either persona can use to share the summary wherever the team already talks.
 
 > **Design note:** every functional requirement in Section 5 is labeled with the persona(s) it serves — "Scrum Master," "Product Owner," or both — so it's clear which modules are shared ground and which are one persona's own workspace.
 
@@ -48,10 +48,10 @@ AgileCopilot serves two co-equal operator personas — a Scrum Master and a Prod
 
 ## 3. Five Product Pillars
 
-The first three pillars operate at the **sprint/team level**; the fourth operates at the **individual Scrum Master level** — where they actually become the bottleneck. This fourth pillar should also be the screen that opens first ("one single place") rather than the report. The fifth pillar is deliberately **on-demand, not automatic** — it runs on data the Scrum Master already exported from a tool this POC doesn't integrate with live.
+The first three pillars operate at the **sprint/team level**; the fourth operates at the **individual Scrum Master level** — where they actually become the bottleneck. This fourth pillar's content is also what the signed-in Overview screen surfaces first ("one single place") as a curated summary, before the user drills into any single pillar — Ops Hub itself is reached from the nav for the full working list. The fifth pillar is deliberately **on-demand, not automatic** — it runs on data the Scrum Master already exported from a tool this POC doesn't integrate with live.
 
-1. **Ops Hub** *(home screen — Scrum Master)* — gathers everything the Scrum Master needs to act on (their own tasks, delegatable work, messages/emails awaiting reply, pending approvals) into one single list, with delegation suggestions and draft-response generation.
-2. **Auto Report** *(Scrum Master &amp; Product Owner)* — at the end of every sprint, the system automatically compiles tickets + documentation into a business-narrative report (not just dry numbers); the Scrum Master gets it pre-written, the Product Owner reads it for the outcome, and it's also sent to Teams.
+1. **Ops Hub** *(Scrum Master's daily list)* — gathers everything the Scrum Master needs to act on (their own tasks, delegatable work, messages/emails awaiting reply, pending approvals) into one single list, with delegation suggestions and draft-response generation.
+2. **Auto Report** *(Scrum Master &amp; Product Owner)* — at the end of every sprint, the system automatically compiles tickets + documentation into a business-narrative report (not just dry numbers); the Scrum Master gets it pre-written, the Product Owner reads it for the outcome, and either can copy it to share wherever the team already talks.
 3. **Doc Linker** *(Scrum Master)* — automatically finds and attaches relevant Confluence documentation to each ticket/epic; flags "missing documentation" or "orphaned documentation" (no longer referenced by any ticket).
 4. **Process Health** *(Scrum Master &amp; Product Owner)* — a table showing tickets that are missing acceptance criteria, missing documentation, or have been stale for too long; the Scrum Master audits process hygiene overall, the Product Owner uses it to catch acceptance-criteria gaps in their own backlog.
 5. **Performance Import** *(Scrum Master &amp; Product Owner)* — a user pastes or uploads a sprint export — CSV, TSV (cells copied straight out of Excel/Google Sheets), or JSON — from *any* tool (Azure Boards, Jira, Trello, a hand-built spreadsheet, ...) as long as it has the right columns, and the app instantly generates 3 fixed performance templates (Velocity & Completion, Quality & Bug Health, Workload & Aging) — no live connection to any tool, no data stored between requests. The Workload & Aging template reuses the same "stale after N days" rule as Process Health, applied to imported data instead of Jira data.
@@ -64,7 +64,7 @@ The first three pillars operate at the **sprint/team level**; the fourth operate
 
 ### In scope for the 7-day POC
 - Ingest sample data simulating Jira (tickets/sprint), Confluence (documentation), and an "ops inbox" (tasks/emails/approvals) — JSON structured identically to a real export.
-- 1 real integration: a Teams webhook (easiest to implement, strong demo effect).
+- Zero live external integrations — every report/draft is generated locally and copied by the user wherever they need to share it (no outbound webhook).
 - Generate sprint reports (narrative + metrics) via LLM.
 - A Process Health table driven by fixed rules (no ML needed).
 - Ops Hub: classification + delegation suggestions + drafting emails/reminders (LLM-generated — drafts only, never auto-sent).
@@ -104,20 +104,19 @@ _Persona: Scrum Master_
   - [ ] A "Refresh data" button exists in the UI.
 
 **STORY 1.2 — Generate business narrative report**
-_Persona: Scrum Master (creates) → PM/PO (reads)_
+_Persona: Scrum Master (creates) &amp; Product Owner (reads)_
 - As a Scrum Master, I want to click one button to get an easy-to-read narrative report plus metrics, so I don't have to write it by hand.
 - Acceptance criteria:
   - [ ] The report includes: a 3–5 sentence summary in business language, velocity, completion rate, and open/closed bug counts.
   - [ ] Report generation takes under 30 seconds on sample data.
   - [ ] The report reads sensibly even when sprint data is incomplete (some tickets still "In Progress").
 
-**STORY 1.3 — Post report summary to Teams**
-_Persona: PM/PO (receives)_
-- As a PM/PO, I want to receive the report summary directly on Teams, so I don't have to proactively open the dashboard.
+**STORY 1.3 — Copy report summary for sharing**
+_Persona: Scrum Master &amp; Product Owner_
+- As a Scrum Master or Product Owner, I want to copy the report summary to my clipboard in one click, so I can paste it wherever my team already reads updates, without waiting on a live integration.
 - Acceptance criteria:
-  - [ ] Sends successfully via a Teams Incoming Webhook.
-  - [ ] The message includes: a 2–3 sentence summary + a link into the dashboard for detail.
-  - [ ] Handles webhook failure gracefully (logs the error, doesn't crash the main flow).
+  - [ ] A "Copy report" control copies a ready-to-paste block: a 2–3 sentence summary, key stats (done/total, velocity, missing-doc count), and the full narrative.
+  - [ ] Works entirely client-side — no network call, so it can never fail due to an unreachable third-party service.
 
 ### EPIC 2 — Doc Linker
 
@@ -143,14 +142,14 @@ _Persona: Scrum Master_
 ### EPIC 3 — Process Health
 
 **STORY 3.1 — Define health rules**
-_Persona: Scrum Master_
+_Persona: Scrum Master &amp; Product Owner_
 - Acceptance criteria:
   - [ ] Rule 1: ticket missing acceptance criteria (empty field) → warning.
   - [ ] Rule 2: ticket missing linked documentation (per Epic 2) → warning.
   - [ ] Rule 3: ticket not updated in > N days (N configurable, default 5) → warning.
 
 **STORY 3.2 — Compute & display health table**
-_Persona: Scrum Master_
+_Persona: Scrum Master &amp; Product Owner_
 - Acceptance criteria:
   - [ ] A table listing violating tickets + violation type (color-coded badge by severity).
   - [ ] Sortable by severity.
@@ -162,7 +161,7 @@ _Persona: Scrum Master_
 **STORY 4.1 — Report view**
 - Acceptance criteria:
   - [ ] Displays the narrative + stat tiles (velocity, completion %, bugs).
-  - [ ] A "Send to Teams" button.
+  - [ ] A "Copy report" button.
 
 **STORY 4.2 — Process Health view**
 - Acceptance criteria:
@@ -213,8 +212,8 @@ _Persona: Scrum Master_
 *(Pillar 5, Section 3. Unlike Epics 1–5, this one runs on data the Scrum Master pastes in on demand — the app never calls out to Azure Boards, Jira, or any other tool's API. Deliberately tool-agnostic: it doesn't matter which tool the export came from, only that it has recognizable columns. A single export is a one-shot snapshot with no iteration history, so these templates are single-sprint only; no burndown-over-time or scope-change tracking.)*
 
 **STORY 6.1 — Ingest a sprint export from any tool**
-_Persona: Scrum Master_
-- As a Scrum Master, I want to paste or upload the CSV/TSV/JSON export I already have — from Azure Boards, Jira, Trello, or a plain spreadsheet — so I don't have to re-enter anything by hand or wait for a real integration with whichever tool my team happens to use.
+_Persona: Scrum Master &amp; Product Owner_
+- As a Scrum Master or Product Owner, I want to paste or upload the CSV/TSV/JSON export I already have — from Azure Boards, Jira, Trello, or a plain spreadsheet — so I don't have to re-enter anything by hand or wait for a real integration with whichever tool my team happens to use.
 - Acceptance criteria:
   - [ ] Accepts pasted text or an uploaded `.csv`/`.tsv`/`.txt`/`.json` file.
   - [ ] Auto-detects comma- vs. tab-delimited text, since cells copy-pasted straight out of Excel/Google Sheets are tab-separated, not comma-separated.
@@ -223,23 +222,23 @@ _Persona: Scrum Master_
   - [ ] A "Load sample data" control demos the feature with zero setup.
 
 **STORY 6.2 — Velocity & Completion template**
-_Persona: Scrum Master_
-- As a Scrum Master, I want velocity, completion rate, and a by-type breakdown computed from the imported export, so I can report on work tracked in any tool the same way I already do for Jira.
+_Persona: Scrum Master &amp; Product Owner_
+- As a Scrum Master or Product Owner, I want velocity, completion rate, and a by-type breakdown computed from the imported export, so I can report on work tracked in any tool the same way I already do for Jira.
 - Acceptance criteria:
   - [ ] Velocity = sum of Story Points on items in a "done"-equivalent state (Closed/Done/Resolved).
   - [ ] Completion rate = done items ÷ total items.
   - [ ] A breakdown by work item type (story/task/bug/other) shows total vs. done per type.
 
 **STORY 6.3 — Quality & Bug Health template**
-_Persona: Scrum Master_
-- As a Scrum Master, I want open/closed bug counts and a severity breakdown from the imported export, so quality trends are visible without pulling a separate report from whichever tool the team uses.
+_Persona: Scrum Master &amp; Product Owner_
+- As a Scrum Master or Product Owner, I want open/closed bug counts and a severity breakdown from the imported export, so quality trends are visible without pulling a separate report from whichever tool the team uses.
 - Acceptance criteria:
   - [ ] Total, open, and closed bug counts, plus bug ratio (bugs ÷ total items).
   - [ ] A severity breakdown table when the export has a Severity/Priority column; otherwise a plain note that severity data wasn't found (never a blank/broken table).
 
 **STORY 6.4 — Workload & Aging template**
-_Persona: Scrum Master_
-- As a Scrum Master, I want to see work distributed by assignee and flag items that have gone stale, so I can spot an overloaded teammate or a forgotten item the same way Process Health already does for Jira tickets.
+_Persona: Scrum Master &amp; Product Owner_
+- As a Scrum Master or Product Owner, I want to see work distributed by assignee and flag items that have gone stale, so I can spot an overloaded teammate or a forgotten item the same way Process Health already does for Jira tickets.
 - Acceptance criteria:
   - [ ] Item counts (total/done) grouped by assignee.
   - [ ] Reuses the Process Health "stale after N days" rule (Story 3.1, Rule 3) against each item's last-changed date; N is configurable in the UI (default matches `DEFAULT_STALE_DAYS`).
@@ -251,25 +250,25 @@ _Persona: Scrum Master_
 ```
 [Data connectors]              [Agent layer]                        [Output layer]
 jira-sample.json       ──┐                                   ┌──▶ Dashboard (Next.js UI)
-confluence-sample.json  ─┼──▶  LLM (Claude API)  ────────────┤      · Ops Hub (home screen)
-ops-inbox-sample.json   ─┤     report / match / health /     │      · Report / Doc Linker / Process Health
-Teams webhook (real)    ─┘     delegate-suggest / draft-text └──▶ Teams message
+confluence-sample.json  ─┼──▶  LLM (Gemini API)  ────────────┤      · Overview / Ops Hub
+ops-inbox-sample.json   ─┘     report / match / health /     └──▶  · Report (Copy button) / Doc Linker /
+                                delegate-suggest / draft-text        Process Health / Performance Import
 
 Sprint export, any tool  ──▶  parse (CSV/TSV/JSON) +         ──▶ Dashboard: Performance Import screen
 (Azure Boards, Jira,          normalize + 3 fixed templates       (stateless — nothing persisted,
  Trello, spreadsheet;          (no LLM, no live API call to        no external tool's API involved)
  pasted/uploaded by the         Azure, Jira, or anything else)
- Scrum Master)
+ Scrum Master or PO)
 ```
 
 **Proposed stack (prioritizing build speed within 7 days, and code an AI coding tool can generate accurately):**
 - **Frontend + Backend:** Next.js (App Router) + Tailwind CSS — a single project, API routes as the backend, easy to deploy for a demo.
-- **Data:** static JSON files for the POC (no real DB needed); for a slightly more polished version, SQLite via `better-sqlite3`.
-- **LLM:** the Anthropic Claude API (Messages API) for generating the narrative report and ticket↔doc matching.
-- **Notifications:** a Teams Incoming Webhook (URL configured via an environment variable).
+- **Data:** static JSON files for the POC (no real DB needed). *Product decision (2026-09-14): a real database is planned for the next phase — tracked separately, intentionally not part of this build.*
+- **LLM:** the Gemini API (`gemini-1.5-flash`) for generating the narrative report, ticket↔doc matching, delegation suggestions, and draft text — falls back to a deterministic template generator when unset, so the app is fully functional without it.
+- **Sharing:** a "Copy report" clipboard action — no outbound integration; the user pastes the summary wherever their team already talks.
 - **Not needed:** real auth, a queue, or a separate DB server — keep it minimal for the POC.
 
-**Required environment variables:** `ANTHROPIC_API_KEY`, `TEAMS_WEBHOOK_URL`.
+**Required environment variables:** `GEMINI_API_KEY` (optional).
 
 ---
 
@@ -414,11 +413,12 @@ The equivalent JSON shape is either a flat array of the same fields, or
 Azure's own query-export shape: `{ "workItems": [{ "id": ..., "fields":
 { "System.Title": ..., "System.WorkItemType": ..., ... } }] }`.
 
-### `teams-webhook-payload` (on "Send to Teams")
-```json
-{
-  "text": "**Sprint 24 — Automated Report**\n5/8 stories completed (velocity 18 points). 1 ticket missing documentation (OPS-102). View details: https://agilecopilot.local/report/SPR-24"
-}
+### Copied report text (on "Copy report")
+```text
+**Sprint 24 — Automated Report**
+5/8 stories completed (velocity 18 points). 1 ticket missing documentation (OPS-102).
+
+<full narrative follows>
 ```
 
 ---
@@ -453,7 +453,7 @@ Principles while building:
 | 2 | PM · Architect | prd.md + architecture.md (= this file) |
 | 3 | Scrum Master | backlog stories/*.md (from Section 5) + a running Next.js scaffold |
 | 4 | Dev | Epic 1 (Auto Report) + Epic 5 (Ops Hub) — the 2 must-haves running end-to-end |
-| 5 | Dev | Epic 3 (Process Health) + real Teams webhook; Epic 2 (Doc Linker) if time remains, cut if not |
+| 5 | Dev | Epic 3 (Process Health) + Copy-report action; Epic 2 (Doc Linker) if time remains, cut if not |
 | 6 | QA · Docs | test acceptance criteria, fix bugs, README, backup demo video |
 | 7 | Present | slides + rehearse the demo twice |
 
@@ -461,7 +461,7 @@ Principles while building:
 
 ## 10. Key Risks
 
-- **Real Jira/Confluence/Teams API auth takes time** → build against sample data first, demo only 1 real integration (Teams webhook).
+- **Real Jira/Confluence API auth takes time** → build against sample data first; the POC ships with zero live integrations — every output is copied by the user, never auto-sent.
 - **Solo + new to the AI coding tool → easy to drift off course** → stick to 1 story at a time, check acceptance criteria daily.
 - **4 epics is ambitious for 7 days (especially with Ops Hub newly added)** → follow the MoSCoW priority table in Section 4 exactly: Epic 1 & 5 are must-have, Epic 3 is should-have, Epic 2 is cut first if time runs out — don't try to build all 4 evenly.
 - **Ops Hub suggestions go wrong (delegates to the wrong person, drafts the wrong tone)** → always keep a human as the final decision-maker: only suggest/draft, never auto-assign work or auto-send messages.

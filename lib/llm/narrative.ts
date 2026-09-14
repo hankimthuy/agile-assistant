@@ -24,6 +24,10 @@ ${ticketLines}`;
 }
 
 function fallbackNarrative(data: SprintData, metrics: ReturnType<typeof computeSprintMetrics>): string {
+  if (metrics.totalCount === 0) {
+    return `${data.sprint.name} has no tickets tracked yet — there's nothing to report on until work is added to the sprint.`;
+  }
+
   const inProgress = data.tickets.filter((t) => t.status !== 'done');
   const pct = Math.round(metrics.completionRate * 100);
 

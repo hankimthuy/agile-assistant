@@ -10,14 +10,15 @@ import type { PerformanceImportReport } from '@/lib/types';
 
 // Four starting-point templates (matches the design mockup's template
 // picker). Each `sample` is a small, realistic export in that tool's own
-// column vocabulary — every column name below is one lib/data/performance-
-// import.ts's ALIASES table already recognizes, so picking a template and
-// hitting Analyze runs the same real, tool-agnostic parser/report
-// functions every other path on this page uses. Azure Boards has no
-// hardcoded sample here — it loads the bundled fixture
-// (data/performance-import-sample.csv) via the existing GET
-// /api/performance-import route, since that fixture is already in Azure's
-// own export shape.
+// shape: Jira/Excel use column names lib/data/performance-import.ts's
+// ALIASES table already recognizes directly; Trello uses a real board
+// export shape (cards/lists/members) that the same file's Trello adapter
+// flattens before the alias table sees it. Picking a template and hitting
+// Analyze runs the same real, tool-agnostic parser/report functions every
+// other path on this page uses. Azure Boards has no hardcoded sample here
+// — it loads the bundled fixture (data/performance-import-sample.csv) via
+// the existing GET /api/performance-import route, since that fixture is
+// already in Azure's own export shape.
 type Template = {
   id: string;
   format: ImportFormat;
@@ -52,15 +53,28 @@ const TEMPLATES: Template[] = [
     id: 'trello',
     format: 'json',
     title: 'Trello JSON',
-    columns: 'Card id/name · type (label) · status (list) · points · assignee · sprint',
+    columns: "Board export ('Print and Export → Export as JSON') · cards/lists/members",
     sample: JSON.stringify(
-      [
-        { id: 'TRELLO-31', name: 'Design empty-state illustration', type: 'Task', status: 'Done', points: 2, assignee: 'Lan Pham', sprint: 'Sprint 24' },
-        { id: 'TRELLO-32', name: 'Wire up Trello board sync spike', type: 'Task', status: 'In Progress', points: 3, assignee: 'Huy Tran', sprint: 'Sprint 24' },
-        { id: 'TRELLO-33', name: 'Card: broken image link on release notes', type: 'Bug', status: 'Done', points: 1, assignee: 'Duc Nguyen', sprint: 'Sprint 24' },
-        { id: 'TRELLO-34', name: 'Draft customer changelog card template', type: 'Task', status: 'To Do', points: 2, assignee: 'Minh Anh', sprint: 'Sprint 24' },
-        { id: 'TRELLO-35', name: 'Story: quick filters on the board', type: 'Story', status: 'In Progress', points: 5, assignee: 'Lan Pham', sprint: 'Sprint 24' },
-      ],
+      {
+        lists: [
+          { id: 'list-todo', name: 'To Do' },
+          { id: 'list-doing', name: 'Doing' },
+          { id: 'list-done', name: 'Done' },
+        ],
+        members: [
+          { id: 'mem-lan', fullName: 'Lan Pham' },
+          { id: 'mem-huy', fullName: 'Huy Tran' },
+          { id: 'mem-duc', fullName: 'Duc Nguyen' },
+          { id: 'mem-minh', fullName: 'Minh Anh' },
+        ],
+        cards: [
+          { id: 'TRELLO-31', name: 'Design empty-state illustration', idList: 'list-done', idMembers: ['mem-lan'], labels: [{ name: 'Task' }], dateLastActivity: '2026-09-09' },
+          { id: 'TRELLO-32', name: 'Wire up Trello board sync spike', idList: 'list-doing', idMembers: ['mem-huy'], labels: [{ name: 'Task' }], dateLastActivity: '2026-08-30' },
+          { id: 'TRELLO-33', name: 'Card: broken image link on release notes', idList: 'list-done', idMembers: ['mem-duc'], labels: [{ name: 'Bug' }], dateLastActivity: '2026-09-10' },
+          { id: 'TRELLO-34', name: 'Draft customer changelog card template', idList: 'list-todo', idMembers: ['mem-minh'], labels: [{ name: 'Task' }], dateLastActivity: '2026-09-05' },
+          { id: 'TRELLO-35', name: 'Story: quick filters on the board', idList: 'list-doing', idMembers: ['mem-lan'], labels: [{ name: 'Story' }], dateLastActivity: '2026-09-08' },
+        ],
+      },
       null,
       2
     ),
@@ -178,9 +192,18 @@ export default function PerformanceImportPage() {
           {TEMPLATES.map((t) => (
             <Panel
               key={t.id}
+              role="button"
+              tabIndex={0}
+              aria-pressed={selectedTemplate === t.id}
               className="flex cursor-pointer flex-col gap-1.5 p-3.5"
               style={selectedTemplate === t.id ? { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)' } : undefined}
               onClick={() => selectTemplate(t)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  selectTemplate(t);
+                }
+              }}
             >
               <div className="flex items-center gap-2">
                 <span className="font-heading text-base font-semibold">{t.title}</span>

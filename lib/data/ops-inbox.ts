@@ -28,6 +28,9 @@ function validate(raw: unknown): OpsInboxData {
     if (it.type === 'pending_approval' && (!it.waitingOn || !it.sentDate)) {
       throw new ValidationError(`Ops inbox item ${it.id} is type "pending_approval" but is missing "waitingOn" or "sentDate"`);
     }
+    if (it.type !== 'pending_approval' && !it.createdDate) {
+      throw new ValidationError(`Ops inbox item ${it.id} is type "${it.type}" but is missing "createdDate"`);
+    }
     if (!Array.isArray(it.candidateAssignees)) {
       throw new ValidationError(`Ops inbox item ${it.id} is missing the "candidateAssignees" array (use [] if none)`);
     }
