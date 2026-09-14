@@ -76,9 +76,10 @@ export default async function LandingPage() {
           The Product Owner reads the outcome. The Scrum Master writes it once.
         </h1>
         <p className="max-w-[62ch] text-base leading-relaxed text-muted md:text-lg">
-          AgileCopilot reads your sprint export and ops inbox once, then gives each side their own view of the same
-          sprint — the Scrum Master triages the day&apos;s work, the Product Owner reads the outcome and hygiene
-          checks straight from it, on their own schedule. It drafts. You decide.
+          AgileCopilot reads your sprint export and ops inbox once. The Scrum Master triages the day&apos;s work and
+          gets AI-suggested delegation and AI-drafted replies, ready to send. The Product Owner reads an AI-written
+          sprint narrative and rule-checked hygiene flags straight from the same read, on their own schedule. It
+          drafts. You decide.
         </p>
         <div className="flex flex-wrap gap-3 pt-1">
           <Link href="/ops-hub" className="btn btn-primary px-5 py-2.5 text-[15px]">
@@ -135,39 +136,56 @@ export default async function LandingPage() {
       </section>
 
       <section id="how-it-works" className="px-6 pb-12 md:px-11">
-        <div className="mb-3.5">
+        <div className="mb-3.5 max-w-[62ch]">
           <div className="eyebrow">How it works</div>
           <h2 className="mt-1 text-2xl md:text-[28px]">One data pull. Two views that never drift apart.</h2>
+          <p className="mt-1.5 text-sm text-muted">
+            Gemini writes the narrative and drafts your replies; fixed rules keep hygiene checks and doc-matching
+            predictable. Each step below says which is which.
+          </p>
         </div>
         <Panel className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
-            <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+              <span className="tag tag-outline self-start text-[10px]">Rule-based</span>
+            </div>
             <div className="eyebrow text-accent">01 — Triage</div>
             <h3 className="text-xl">One inbox, four verdicts</h3>
             <p className="text-sm text-muted">
-              Tasks, approvals and unanswered messages land in one place, each labelled keep, delegate, chase or
-              reply.
+              Tasks, approvals and unanswered messages land in one place, each sorted by source into keep, delegate,
+              chase or reply — no AI needed to read what a task already is.
             </p>
           </div>
           <div className="flex flex-col gap-2 border-b border-line p-6 lg:border-r lg:border-b-0">
-            <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="tag tag-neutral self-start text-[10px]">For Scrum Masters</span>
+              <span className="tag tag-accent self-start text-[10px]">AI-written</span>
+            </div>
             <div className="eyebrow text-accent">02 — Draft</div>
-            <h3 className="text-xl">Reminders and delegation, written</h3>
+            <h3 className="text-xl">Reminders and delegation, AI-drafted</h3>
             <p className="text-sm text-muted">
-              Nudge emails and delegation notes arrive pre-written, in your voice, never sent automatically.
+              For each delegatable item, AI decides keep-or-delegate with a one-line reason, then drafts the nudge
+              email or delegation note in your voice — never sent automatically.
             </p>
           </div>
           <div className="flex flex-col gap-2 border-b border-line p-6 md:border-r lg:border-b-0">
-            <span className="tag tag-accent self-start text-[10px]">For both</span>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="tag tag-accent self-start text-[10px]">For both</span>
+              <span className="tag tag-accent self-start text-[10px]">AI-written</span>
+            </div>
             <div className="eyebrow text-accent">03 — Report</div>
             <h3 className="text-xl">Sprint narrative, ready to send</h3>
             <p className="text-sm text-muted">
-              The Scrum Master gets it pre-written; the Product Owner reads the outcome straight from it — velocity,
-              scope changes, what shipped.
+              Gemini writes the narrative from the same sprint data; the Product Owner reads the outcome straight
+              from it — velocity, scope changes, what shipped.
             </p>
           </div>
           <div className="flex flex-col gap-2 p-6">
-            <span className="tag tag-accent self-start text-[10px]">For both</span>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="tag tag-accent self-start text-[10px]">For both</span>
+              <span className="tag tag-outline self-start text-[10px]">Rule-based</span>
+            </div>
             <div className="eyebrow text-accent">04 — Audit</div>
             <h3 className="text-xl">Process hygiene, measured</h3>
             <p className="text-sm text-muted">
